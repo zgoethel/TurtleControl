@@ -1,0 +1,18 @@
+﻿using Generated;
+using Microsoft.Extensions.DependencyInjection;
+using TurtlePublic.Services;
+
+namespace TurtlePublic.Extensions;
+
+public static class ServiceCollectionExtensions
+{
+    public static void AddTurtlePublicBackend(this IServiceCollection services)
+    {
+        services.AddEventBackend<EventService>();
+    }
+
+    public static void AddTurtlePublicFrontend(this IServiceCollection services)
+    {
+        services.AddEventFrontend();
+    }
+}

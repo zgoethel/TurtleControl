@@ -1,0 +1,15 @@
+﻿@page "/"
+@inject Event.IService events
+
+<PageTitle>TurtlePublic</PageTitle>
+
+@code {
+    private Event.Dashboard dashboard;
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        dashboard = await events.Dashboard(null, null);
+    }
+}
+
+<pre>@System.Text.Json.JsonSerializer.Serialize(dashboard, options: new() { WriteIndented = true })</pre>

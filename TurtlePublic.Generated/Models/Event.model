@@ -1,0 +1,48 @@
+schema {
+	int Id,
+	string Type = {""},
+	DateTime Timestamp,
+	string CCType = {""},
+	int CCNum
+}
+
+{
+	public class TurtleLeaderboard
+	{
+		public int CCNum { get; set; }
+		public int Gained { get; set; }
+		public int Lost { get; set; }
+		public int NetAmount { get; set; }
+		public DateTime? LastTree { get; set; }
+		public string? FavoriteExtra { get; set; }
+	}
+
+	public class Dashboard
+	{
+		public DateTime? MostRecentTree { get; set; }
+		public int HarvestedTrees { get; set; }
+		public int ItemsCollected { get; set; }
+		public int FuelConsumed { get; set; }
+		public List<TurtleLeaderboard> TurtleLeaderboard { get; set; } = new();
+	}
+
+	public class EventId
+	{
+		public int Id { get; set; }
+	}
+}
+
+repo {
+	dbo.Event_Begin(string Type, string CCType, int CCNum)
+		=> EventId,
+
+	dbo.Event_AddMaterial(int Id, string Material, int Amount),
+
+	dbo.Event_Dashboard(DateTime? RangeStart, DateTime? RangeEnd)
+		=> json Dashboard
+}
+
+service {
+	Dashboard(DateTime? RangeStart, DateTime? RangeEnd)
+		=> Dashboard
+}

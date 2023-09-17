@@ -1,0 +1,4 @@
+[submodule "SourceGeneration"]
+	path = SourceGeneration
+	url = https://github.com/jibini-net/SourceGeneration
+	branch = turtlepublic
