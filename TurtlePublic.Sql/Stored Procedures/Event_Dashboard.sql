@@ -8,10 +8,7 @@ BEGIN
 	SELECT @RangeStart = ISNULL(@RangeStart, DATEADD(DAY, -1, GETDATE())),
 		@RangeEnd = ISNULL(@RangeEnd, DATEADD(DAY, 1, @RangeStart))
 	SELECT
-		(SELECT TOP (1) Timestamp FROM Event
-		 WHERE Type = 'HarvestTree'
-		 ORDER BY Id DESC)
-		 'MostRecentTree',
+        (SELECT GETDATE()) 'Now',
 
 		(SELECT ISNULL(COUNT(*), 0) FROM Event
 		 WHERE Type = 'HarvestTree'
@@ -24,13 +21,6 @@ BEGIN
 			AND Material LIKE '%_log'
 			AND Timestamp BETWEEN @RangeStart AND @RangeEnd)
 		 'HarvestedLogs',
-
-		(SELECT ISNULL(SUM(IIF(NetAmount > 0, NetAmount, 0)), 0) FROM EventMaterial em
-		 INNER JOIN Event e ON e.Id = em.EventId
-		 WHERE e.CCType = 'Turtle'
-			AND e.CCNum IN (2, 4)
-			AND e.Timestamp BETWEEN @RangeStart AND @RangeEnd)
-		 'ItemsCollected',
 
 		(SELECT ISNULL(SUM(NetAmount), 0) FROM EventMaterial em
 		 INNER JOIN Event e ON e.Id = em.EventId

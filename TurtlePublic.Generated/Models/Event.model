@@ -19,9 +19,9 @@ schema {
 
 	public class Dashboard
 	{
-		public DateTime? MostRecentTree { get; set; }
+		public DateTime Now { get; set; }
 		public int HarvestedTrees { get; set; }
-		public int ItemsCollected { get; set; }
+		public int HarvestedLogs { get; set; }
 		public int FuelConsumed { get; set; }
 		public List<TurtleLeaderboard> TurtleLeaderboard { get; set; } = new();
 	}

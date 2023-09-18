@@ -1,0 +1,35 @@
+﻿.site-bg-dark {
+    background: #313639;
+}
+
+.site-bg-tint {
+    background: #f3f3f3;
+}
+
+c {
+    font-family: monospace;
+}
+
+.mc-font {
+    font-weight: 700;
+    font-family: monospace !important;
+    text-shadow: black 0 -1px;
+}
+
+#tree-count {
+    position: absolute;
+    padding: 0.5rem;
+    background: darkgrey;
+    border-radius: 0.35rem;
+    color: white;
+    font-weight: bold;
+    margin-top: 90px;
+}
+
+img {
+    pointer-events: none;
+}
+
+* { 
+    user-select: none;
+}

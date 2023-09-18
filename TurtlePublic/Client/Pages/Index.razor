@@ -1,15 +1,101 @@
 ﻿@page "/"
 @inject Event.IService events
 
-<PageTitle>TurtlePublic</PageTitle>
+<PageTitle>Turtle Stats</PageTitle>
+
+@if (dashboard is null)
+{
+
+    <center>
+        <h1>Loading</h1>
+    </center>
+
+} else
+{
+
+    <div class="d-flex flex-column flex-xl-row" style="width: 100%;min-height: 100vh;">
+        <div class="d-flex flex-row flex-xl-column mx-auto mx-xl-0 p-4"
+            style="max-width: 500px;">
+
+            <img src="https://i.imgur.com/Nsq6jiX.png"
+                width="80"
+                class="mx-auto" />
+            <h3 class="m-auto my-xl-0 mc-font px-4" style="color: green;">@dashboard.HarvestedLogs</h3>
+
+            <div style="position: relative;"
+                 class="mx-auto">
+
+                <img src="https://i.imgur.com/Nsq6jiX.png" width="80" />
+                <img src="https://i.imgur.com/JsTgcFC.gif"
+                     width="40"
+                     style="position: absolute;margin-left: -30px;margin-top: 40px;" />
+                
+            </div>
+            <h3 class="m-auto my-xl-0 mc-font px-4" style="color: red;">@Math.Abs(dashboard.FuelConsumed)</h3>
+        
+        </div>
+        
+        @if (MostRecentTurtle is not null)
+        {
+            <div>
+                <div class="d-flex flex-column flex-xl-row site-bg-dark shadow p-3" style="width: 100%;min-height: 250px;">
+                    
+                    <div class="my-auto site-bg-tint p-3 card d-block">
+
+                        <div id="tree-count" class="mc-font">
+                            x@(dashboard.HarvestedTrees)
+                        </div>
+                        <img src="https://i.imgur.com/eJS7K1t.png" width="130" class="me-4" style="float: left;" />
+
+                        <h5><strong>Last tree</strong></h5>
+                        <h4>
+                            @MostRecentTurtle.LastTree.Value.ToLongDateString()
+                            @@
+                            <strong>@MostRecentTurtle.LastTree.Value.ToShortTimeString()</strong>
+                        </h4>
+                        <h6><i>Elapsed: <strong>@SinceLastTree.Value.ToString("c").Split(".")[0]</strong></i></h6>
+                    
+                    </div>
+
+                    <div class="my-auto text-white p-3 ps-5">
+
+                        <center>
+                            <img src="https://i.imgur.com/Gv970bN.png" width="80" class="my-2" />
+                            <h6 class="mb-0">by</h6>
+                            <h3><c>Turtle @MostRecentTurtle.CCNum</c></h3>
+                        </center>
+
+                    </div>
+
+                </div>
+            </div>
+        }
+
+        
+
+    </div>
+
+}
 
 @code {
     private Event.Dashboard dashboard;
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        dashboard = await events.Dashboard(null, null);
+        while (true)
+        {
+            dashboard = await events.Dashboard(null, null);
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(1000);
+        }
     }
-}
 
-<pre>@System.Text.Json.JsonSerializer.Serialize(dashboard, options: new() { WriteIndented = true })</pre>
+    private Event.TurtleLeaderboard? MostRecentTurtle => dashboard.TurtleLeaderboard
+        .OrderByDescending((it) => it.LastTree)
+        .Where((it) => it.LastTree is not null)
+        .FirstOrDefault();
+    // Do not call if MostRecentTurtle is null
+    private TimeSpan? SinceLastTree => dashboard.Now - MostRecentTurtle.LastTree;
+    // Do not call if HarvestedTrees is zero
+    private decimal MinsPerTree => (24 * 60) / dashboard.HarvestedTrees;
+}
