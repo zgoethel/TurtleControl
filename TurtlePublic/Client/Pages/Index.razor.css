@@ -33,3 +33,8 @@ img {
 * { 
     user-select: none;
 }
+
+table {
+    height: min-content;
+    width: max-content;
+}

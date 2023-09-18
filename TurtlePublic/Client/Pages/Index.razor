@@ -13,8 +13,9 @@
 } else
 {
 
-    <div class="d-flex flex-column flex-xl-row" style="width: 100%;min-height: 100vh;">
-        <div class="d-flex flex-row flex-xl-column mx-auto mx-xl-0 p-4"
+    <div class="d-flex flex-column flex-xl-row border border-dark"
+        style="width: 100%;">
+        <div class="mb-0 d-flex flex-row flex-xl-column mx-auto mx-xl-0 p-4"
             style="max-width: 500px;">
 
             <img src="https://i.imgur.com/Nsq6jiX.png"
@@ -25,10 +26,10 @@
             <div style="position: relative;"
                  class="mx-auto">
 
-                <img src="https://i.imgur.com/Nsq6jiX.png" width="80" />
-                <img src="https://i.imgur.com/JsTgcFC.gif"
-                     width="40"
-                     style="position: absolute;margin-left: -30px;margin-top: 40px;" />
+                <img src="https://i.imgur.com/JsTgcFC.gif" width="80" />
+                <img src="https://i.imgur.com/Nsq6jiX.png"
+                     width="50"
+                     style="position: absolute;margin-left: -65px;margin-top: 5px;filter: grayscale(1);" />
                 
             </div>
             <h3 class="m-auto my-xl-0 mc-font px-4" style="color: red;">@Math.Abs(dashboard.FuelConsumed)</h3>
@@ -37,8 +38,8 @@
         
         @if (MostRecentTurtle is not null)
         {
-            <div>
-                <div class="d-flex flex-column flex-xl-row site-bg-dark shadow p-3" style="width: 100%;min-height: 250px;">
+            <div class="mx-auto mb-0 d-flex">
+                <div class="my-0 my-xl-auto d-flex flex-column flex-xl-row site-bg-dark shadow p-3 me-0 me-xl-4" style="width: 100%;min-height: 250px;">
                     
                     <div class="my-auto site-bg-tint p-3 card d-block">
 
@@ -71,11 +72,47 @@
             </div>
         }
 
-        
+        <div class="mx-auto mx-xl-0 me-xl-4"
+            style="height: 250px;max-width: 100%;overflow: auto;">
+
+            <center>
+                <h5 class="mt-4"><strong>Leaderboard</strong></h5>
+            </center>
+
+            <table class="table mb-0 mx-auto"
+                style="max-height: 100%;overflow: auto;">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th><img src="https://i.imgur.com/Gv970bN.png" width="20" /></th>
+                        <th>Gains</th>
+                        <th>Losses</th>
+                        <th>Net Items</th>
+                        <th><img src="https://i.imgur.com/aLKfPfE.png" width="20" /> Loot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var (turtle, i) in dashboard.TurtleLeaderboard.Select((it, i) => (it, i)))
+                    {
+                        <tr>
+                            <td><strong>@(i + 1)</strong></td>
+                            <td>@turtle.CCNum</td>
+                            <td style="color: green;">@turtle.Gained</td>
+                            <td style="color: red;">(@(Math.Abs(turtle.Lost)))</td>
+                            <td>@turtle.NetAmount</td>
+                            <td><i>@turtle.FavoriteExtra</i></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
 
     </div>
 
 }
+
+<pre class="mt-5">@System.Text.Json.JsonSerializer.Serialize(dashboard, options: new() { WriteIndented = true })</pre>
 
 @code {
     private Event.Dashboard dashboard;
@@ -84,8 +121,13 @@
         await base.OnInitializedAsync();
         while (true)
         {
-            dashboard = await events.Dashboard(null, null);
-            await InvokeAsync(StateHasChanged);
+            try
+            {
+                dashboard = await events.Dashboard(null, null);
+                await InvokeAsync(StateHasChanged);
+            } catch (Exception)
+            {
+            }
             await Task.Delay(1000);
         }
     }
