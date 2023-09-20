@@ -5,14 +5,13 @@ while true do
     Routine.harvestTree()
     Routine.returnHome()
 
+    Routine.placeSapling()
     sleep(5)
-    Routine.placeBlock(2)
     Routine.collectItems()
 
     Routine.returnHome2()
-    Routine.dumpItems(3)
+    Routine.dumpItems()
     Routine.returnHome3()
                   
     print("Harvest cycle complete")
-    sleep(10)
 end

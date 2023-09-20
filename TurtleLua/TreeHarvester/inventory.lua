@@ -33,7 +33,6 @@ end
 
 function Inventory.logDiffs(event, original)
     matCounts = {}
-    
     for slot = 1, 16, 1 do
         local newSlot = turtle.getItemDetail(slot)
         insertMatCount(matCounts, newSlot, "new")

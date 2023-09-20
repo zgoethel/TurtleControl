@@ -17,6 +17,18 @@ function Routine.checkFuel()
     end
 end
 
+function Routine.clearPath()
+    local success, block = turtle.inspect()
+    if success then
+        local event = Event.begin("ClearPath")
+
+        Routine.checkFuel()
+        local remember = Inventory.deepCopy()
+        turtle.dig()
+        Inventory.logDiffs(event, remember)
+    end
+end
+
 --local firstRun = true
 
 function Routine.waitFor(block)
@@ -127,8 +139,8 @@ function Routine.returnHome2()
     turtle.turnLeft()
 end
 
-function Routine.dumpItems(firstSlot)
-    for i = firstSlot, 16, 1 do
+function Routine.dumpItems()
+    for i = 3, 16, 1 do
         turtle.select(i)
         while turtle.drop() do
         end
@@ -141,6 +153,7 @@ function Routine.returnHome3()
     turtle.turnLeft()
     
     for i = 1, 4, 1 do
+        Routine.clearPath()
         Routine.checkFuel()
         turtle.forward()
     end
@@ -158,10 +171,10 @@ function Routine.returnHome3()
     --turtle.back()
 end
 
-function Routine.placeBlock(slot)
-    local event = Event.begin("PlaceBlock")
+function Routine.placeSapling()
+    local event = Event.begin("PlaceSapling")
     Routine.checkFuel()
-    turtle.select(slot)
+    turtle.select(2)
 
     local remember = Inventory.deepCopy()
     turtle.place()
