@@ -13,15 +13,15 @@
 } else
 {
 
-    <div class="d-flex flex-column flex-xl-row border border-dark"
+    <div class="d-flex flex-column flex-xl-row border border-dark site-bg-grey"
         style="width: 100%;">
-        <div class="mb-0 d-flex flex-row flex-xl-column mx-auto mx-xl-0 p-4"
-            style="max-width: 500px;">
+        <div class="d-flex flex-row flex-xl-column mx-auto my-2 m-xl-4 p-2 card"
+            style="max-width: 500px;background: #ffffffc0;min-width: 100px;">
 
             <img src="https://i.imgur.com/Nsq6jiX.png"
                 width="80"
                 class="mx-auto" />
-            <h3 class="m-auto my-xl-0 mc-font px-4" style="color: green;">@dashboard.HarvestedLogs</h3>
+            <h4 class="m-auto my-xl-0 mc-font" style="color: green;">@dashboard.HarvestedLogs.ToString("n0")</h4>
 
             <div style="position: relative;"
                  class="mx-auto">
@@ -32,19 +32,19 @@
                      style="position: absolute;margin-left: -65px;margin-top: 5px;filter: grayscale(1);" />
                 
             </div>
-            <h3 class="m-auto my-xl-0 mc-font px-4" style="color: red;">@Math.Abs(dashboard.FuelConsumed)</h3>
+            <h4 class="m-auto my-xl-0 mc-font" style="color: red;">@Math.Abs(dashboard.FuelConsumed).ToString("n0")</h4>
         
         </div>
         
         @if (MostRecentTurtle is not null)
         {
             <div class="mx-auto mb-0 d-flex">
-                <div class="my-0 my-xl-auto d-flex flex-column flex-xl-row site-bg-dark shadow p-3 me-0 me-xl-4" style="width: 100%;min-height: 250px;">
+                <div class="my-0 my-xl-auto d-flex flex-column flex-xl-row site-bg-dark shadow p-3" style="width: 100%;min-height: 250px;">
                     
                     <div class="my-auto site-bg-tint p-3 card d-block">
 
                         <div id="tree-count" class="mc-font">
-                            x@(dashboard.HarvestedTrees)
+                            x@(dashboard.HarvestedTrees.ToString("n0"))
                         </div>
                         <img src="https://i.imgur.com/eJS7K1t.png" width="130" class="me-4" style="float: left;" />
 
@@ -54,7 +54,11 @@
                             @@
                             <strong>@MostRecentTurtle.LastTree.Value.ToShortTimeString()</strong>
                         </h4>
-                        <h6><i>Elapsed: <strong>@SinceLastTree.Value.ToString("c").Split(".")[0]</strong></i></h6>
+                        <p class="m-0"><i>Elapsed: <strong>@SinceLastTree.Value.ToString("hh':'mm':'ss")</strong></i></p>
+                        @if (dashboard.HarvestedTrees > 0)
+                        {
+                            <p class="m-0"><i>Avg: <strong>@(SecsPerTree.ToString("0.0"))s</strong></i></p>
+                        }
                     
                     </div>
 
@@ -72,8 +76,8 @@
             </div>
         }
 
-        <div class="mx-auto mx-xl-0 me-xl-4"
-            style="height: 250px;max-width: 100%;overflow: auto;">
+        <div class="m-4 mx-auto m-xl-4 p-2 bg-white card d-block"
+            style="height: 250px;max-width: 100%;overflow: auto;margin-top: 1rem;">
 
             <center>
                 <h5 class="mt-4"><strong>Leaderboard</strong></h5>
@@ -89,6 +93,7 @@
                         <th>Losses</th>
                         <th>Net Items</th>
                         <th><img src="https://i.imgur.com/aLKfPfE.png" width="20" /> Loot</th>
+                        <th class="d-none d-md-table-cell">Last Tree</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -97,10 +102,11 @@
                         <tr>
                             <td><strong>@(i + 1)</strong></td>
                             <td>@turtle.CCNum</td>
-                            <td style="color: green;">@turtle.Gained</td>
-                            <td style="color: red;">(@(Math.Abs(turtle.Lost)))</td>
-                            <td>@turtle.NetAmount</td>
+                            <td style="color: green;">@turtle.Gained.ToString("n0")</td>
+                            <td style="color: red;">(@(Math.Abs(turtle.Lost).ToString("n0")))</td>
+                            <td>@turtle.NetAmount.ToString("n0")</td>
                             <td><i>@turtle.FavoriteExtra</i></td>
+                            <td class="d-none d-md-table-cell">@turtle.LastTree?.ToString("yyyy-MM-dd HH:mm:ss")</td>
                         </tr>
                     }
                 </tbody>
@@ -112,10 +118,56 @@
 
 }
 
-<pre class="mt-5">@System.Text.Json.JsonSerializer.Serialize(dashboard, options: new() { WriteIndented = true })</pre>
+<div class="d-flex flex-column flex-lg-row" style="width: 100%;">
+    <div class="flex-grow-1 flex-shrink-1 px-3">
+
+        <div class="row" style="width: 100%;">
+            @foreach (var mat in materialBreakdown)
+            {
+                
+                <div class="col-6 col-md-4 col-lg-2 p-3"
+                    style="word-break: break-all;">
+                    <i>@(mat.Material.Contains(":") ? (mat.Material.Split(":")[0] + ":") : "")</i>
+                    <h5 class="mc-font site-fg-primary">@mat.Material.Split(":").Last()</h5>
+                    <h1 class="mc-font site-fg-accent">@mat.NetAmount.ToString("n0")</h1>
+                </div>
+
+            }
+        </div>
+
+    </div>
+    <div class="shadow border border-dark site-bg-tint"
+        style="max-height: calc(100vh - 310px);min-width: fit-content;overflow-y: auto;white-space: nowrap;">
+
+        @foreach (var ev in history)
+        {
+            <div class="card shadow mt-4 p-3 mx-3">
+                <div class="d-flex flex-row" style="width: 100%;">
+                    <h6>@ev.Type</h6>
+                    <i class="ms-auto ps-2" style="font-size: 11px;">@ev.Timestamp</i>
+                </div>
+                <h5 class="mc-font site-fg-accent">+@(ev.Gained)&nbsp;&nbsp;-@(Math.Abs(ev.Lost))</h5>
+
+                @* Shouldn't be null *@
+                @if ((ev.Materials?.Count ?? 0) > 0)
+                {
+                    <ul>
+                        @foreach (var mat in ev.Materials)
+                        {
+                            <li>@mat.NetAmount @mat.Material</li>
+                        }
+                    </ul>
+                }
+            </div>
+        }
+
+    </div>
+</div>
 
 @code {
     private Event.Dashboard dashboard;
+    private List<Event.NetMaterial> history = new();
+    private List<Event.ByMaterial> materialBreakdown = new();
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -125,8 +177,14 @@
             {
                 dashboard = await events.Dashboard(null, null);
                 await InvokeAsync(StateHasChanged);
-            } catch (Exception)
+                history = await events.History();
+                await InvokeAsync(StateHasChanged);
+                materialBreakdown = await events.MaterialBreakdown(null, null);
+                await InvokeAsync(StateHasChanged);
+            } catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace.ToString());
             }
             await Task.Delay(1000);
         }
@@ -139,5 +197,5 @@
     // Do not call if MostRecentTurtle is null
     private TimeSpan? SinceLastTree => dashboard.Now - MostRecentTurtle.LastTree;
     // Do not call if HarvestedTrees is zero
-    private decimal MinsPerTree => (24 * 60) / dashboard.HarvestedTrees;
+    private decimal SecsPerTree => (decimal)(24 * 60 * 60) / dashboard.HarvestedTrees;
 }

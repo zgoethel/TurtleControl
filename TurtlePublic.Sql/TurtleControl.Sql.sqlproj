@@ -71,5 +71,7 @@
     <Build Include="Tables\Event.sql" />
     <Build Include="Tables\EventMaterial.sql" />
     <Build Include="Views\EventNetMaterial.sql" />
+    <Build Include="Stored Procedures\EventMaterial_ByMaterial.sql" />
+    <Build Include="Stored Procedures\Event_History.sql" />
   </ItemGroup>
 </Project>

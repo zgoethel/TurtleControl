@@ -19,4 +19,14 @@ public class EventService : Event.IBackendService
     {
         return repo.dbo__Event_Dashboard(RangeStart, RangeEnd);
     }
+
+    public Task<List<Event.NetMaterial>> History()
+    {
+        return repo.dbo__Event_History();
+    }
+
+    public Task<List<Event.ByMaterial>> MaterialBreakdown(DateTime? RangeStart, DateTime? RangeEnd)
+    {
+        return repo.dbo__EventMaterial_ByMaterial(RangeStart, RangeEnd);
+    }
 }

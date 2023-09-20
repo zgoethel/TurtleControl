@@ -30,6 +30,26 @@ schema {
 	{
 		public int Id { get; set; }
 	}
+
+	public class ByMaterial
+	{
+		public string Material { get; set; }
+		public int NetAmount { get; set; }
+	}
+
+	public class NetMaterial
+	{
+		public int Id { get; set; }
+		public string Type { get; set; }
+		public DateTime Timestamp { get; set; }
+		public string CCType { get; set; }
+		public int CCNum { get; set; }
+		public int Gained { get; set; }
+		public int Lost { get; set; }
+		public int NetAmount { get; set; }
+		public DateTime LastUpdated { get; set; }
+		public List<ByMaterial> Materials { get; set; }
+	}
 }
 
 repo {
@@ -39,10 +59,22 @@ repo {
 	dbo.Event_AddMaterial(int Id, string Material, int Amount),
 
 	dbo.Event_Dashboard(DateTime? RangeStart, DateTime? RangeEnd)
-		=> json Dashboard
+		=> json Dashboard,
+
+	dbo.EventMaterial_ByMaterial(DateTime? RangeStart, DateTime? RangeEnd)
+		=> json List<ByMaterial>,
+
+	dbo.Event_History()
+		=> json List<NetMaterial>
 }
 
 service {
 	Dashboard(DateTime? RangeStart, DateTime? RangeEnd)
-		=> Dashboard
+		=> Dashboard,
+		
+	MaterialBreakdown(DateTime? RangeStart, DateTime? RangeEnd)
+		=> List<ByMaterial>,
+
+	History()
+		=> List<NetMaterial>
 }

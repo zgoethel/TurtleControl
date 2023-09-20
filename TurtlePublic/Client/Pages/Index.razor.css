@@ -1,4 +1,8 @@
 ﻿.site-bg-dark {
+    background: #22272d;
+}
+
+.site-bg-grey {
     background: #313639;
 }
 
@@ -13,7 +17,7 @@ c {
 .mc-font {
     font-weight: 700;
     font-family: monospace !important;
-    text-shadow: black 0 -1px;
+    text-shadow: black 0 -1.5px;
 }
 
 #tree-count {
@@ -37,4 +41,12 @@ img {
 table {
     height: min-content;
     width: max-content;
+}
+
+.site-fg-accent {
+    color: #93c8dd;
+}
+
+.site-fg-primary {
+    color: #79a37b;
 }
