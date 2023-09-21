@@ -50,3 +50,10 @@ table {
 .site-fg-primary {
     color: #79a37b;
 }
+
+@media (min-width: 992px)
+{
+    .event-log {
+        min-width: 400px;
+    }
+}

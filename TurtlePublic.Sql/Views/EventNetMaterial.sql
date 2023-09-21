@@ -15,7 +15,7 @@ SELECT e.Id,
 	 WHERE em2.EventId = e.Id
      GROUP BY em2.Material
 	 FOR JSON PATH), '[]')
-	 'MaterialJson'
+	 'Materials'
 FROM Event e
 LEFT JOIN EventMaterial em ON e.Id = em.EventId
 GROUP BY e.Id, e.Type, e.Timestamp, e.CCType, e.CCNum
