@@ -1,7 +1,9 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: cursive, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: #514e4a;
+    color: white;
 }
 
 #app {
@@ -13,12 +15,17 @@ html, body {
     overflow-y: auto;
 }
 
+.card {
+    background: #fff8f2 !important;
+    color: black;
+}
+
 h1:focus {
     outline: none;
 }
 
 a, .btn-link {
-    color: #0071c1;
+    color: #bcc7d7 !important;
 }
 
 .btn-primary {

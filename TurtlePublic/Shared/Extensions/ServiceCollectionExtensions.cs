@@ -9,10 +9,12 @@ public static class ServiceCollectionExtensions
     public static void AddTurtlePublicBackend(this IServiceCollection services)
     {
         services.AddEventBackend<EventService>();
+        services.AddAccountBackend<AccountService>();
     }
 
     public static void AddTurtlePublicFrontend(this IServiceCollection services)
     {
         services.AddEventFrontend();
+        services.AddAccountFrontend();
     }
 }

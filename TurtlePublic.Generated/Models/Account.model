@@ -1,0 +1,63 @@
+schema {
+	int Id,
+	string Email = {""},
+	string FirstName = {""},
+	string LastName = {""}
+}
+
+partial WithPassword {
+	string PasswordScheme = {""},
+	string PasswordHash = {""},
+	string PasswordSalt = {""},
+	DateTime? PasswordSet
+}
+
+partial WithReset {
+	string ResetToken = {""},
+	DateTime? ResetIssued
+}
+
+partial WithSession {
+	string SessionToken = {""}
+}
+
+repo {
+	dbo.Account_List(int page, int count)
+		=> List<Account>,
+
+	dbo.Account_GetById(int id)
+		=> Account,
+
+	dbo.Account_SignUp(string email, string firstName, string lastName)
+		=> Account,
+
+	dbo.Account_GetWithPassword(string email)
+		=> Account.WithPassword,
+
+	dbo.Account_SetResetToken(string email, string resetToken)
+		=> Account.WithReset,
+
+	dbo.Account_GetByResetToken(string resetToken)
+		=> Account.WithReset,
+
+	dbo.Account_ResetPassword(string resetToken, string passwordScheme, string passwordHash, string passwordSalt)
+		=> Account
+}
+
+service {
+	List(int page, int count)
+		=> List<Account>,
+
+	Get(int id)
+		=> Account,
+
+	AttemptLogin(string email, string password)
+		=> Account,
+
+	BeginReset(string email),
+
+	GetResetDetails(string resetToken)
+		=> Account,
+
+	ResetPassword(string resetToken, string password)
+}

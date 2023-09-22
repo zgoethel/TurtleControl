@@ -1,7 +1,5 @@
 ﻿using Generated;
 using Microsoft.Extensions.Logging;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace TurtlePublic.Services;
 

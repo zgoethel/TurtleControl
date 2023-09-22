@@ -6,9 +6,23 @@
 @if (dashboard is null)
 {
 
-    <center>
-        <h1>Loading</h1>
-    </center>
+    <div class="d-flex flex-row" style="width: 100%;" @key="@Guid.NewGuid()">
+        <i class="ms-auto spinner-border my-auto" />
+        <h4 class="ms-3 my-auto me-auto">
+            @switch (Random.Shared.Next(3))
+            {
+                case 0:
+                    <text>Gimme a sec...</text>
+                    break;
+                case 1:
+                    <text>Loading wood-related data...</text>
+                    break;
+                case 2:
+                    <text>Retrieving logs...</text>
+                    break;
+            }
+        </h4>
+    </div>
 
 } else
 {
@@ -18,7 +32,7 @@
         <div class="d-flex flex-row flex-xl-column mx-auto my-2 m-xl-4 p-2 card"
             style="max-width: 500px;background: #ffffffc0;min-width: 100px;">
 
-            <img src="https://i.imgur.com/Nsq6jiX.png"
+            <img src="@Images.OakLog"
                 width="80"
                 class="mx-auto" />
             <h4 class="m-auto my-xl-0 mc-font" style="color: green;">@dashboard.HarvestedLogs.ToString("n0")</h4>
@@ -26,8 +40,8 @@
             <div style="position: relative;"
                  class="mx-auto">
 
-                <img src="https://i.imgur.com/JsTgcFC.gif" width="80" />
-                <img src="https://i.imgur.com/Nsq6jiX.png"
+                <img src="@Images.Fire" width="80" />
+                <img src="@Images.OakLog"
                      width="50"
                      style="position: absolute;margin-left: -65px;margin-top: 5px;filter: grayscale(1);" />
                 
@@ -41,12 +55,12 @@
             <div class="mx-auto mb-0 d-flex">
                 <div class="my-0 my-xl-auto d-flex flex-column flex-xl-row site-bg-dark shadow p-3" style="width: 100%;min-height: 250px;">
                     
-                    <div class="my-auto site-bg-tint p-3 card d-block">
+                    <div class="my-auto text-white p-3 d-block">
 
                         <div id="tree-count" class="mc-font">
                             x@(dashboard.HarvestedTrees.ToString("n0"))
                         </div>
-                        <img src="https://i.imgur.com/eJS7K1t.png" width="130" class="me-4" style="float: left;" />
+                        <img src="@Images.Tree" width="130" class="me-4" style="float: left;" />
 
                         <h5><strong>Last tree</strong></h5>
                         <h4>
@@ -65,7 +79,7 @@
                     <div class="my-auto text-white p-3 ps-5">
 
                         <center>
-                            <img src="https://i.imgur.com/Gv970bN.png" width="80" class="my-2" />
+                            <img src="@Images.Turtle" width="80" class="my-2" />
                             <h6 class="mb-0">by</h6>
                             <h3><c>Turtle @MostRecentTurtle.CCNum</c></h3>
                         </center>
@@ -84,15 +98,15 @@
             </center>
 
             <table class="table mb-0 mx-auto"
-                style="max-height: 100%;overflow: auto;">
+                   style="max-height: 100%;overflow: auto;background-color: #f5ece3;">
                 <thead>
                     <tr>
                         <th></th>
-                        <th><img src="https://i.imgur.com/Gv970bN.png" width="20" /></th>
+                        <th><img src="@Images.Turtle" width="20" /></th>
                         <th>Gains</th>
                         <th>Losses</th>
                         <th>Net Items</th>
-                        <th><img src="https://i.imgur.com/aLKfPfE.png" width="20" /> Loot</th>
+                        <th><img src="@Images.Heart" width="20" /> Loot</th>
                         <th>Last Tree</th>
                     </tr>
                 </thead>
@@ -116,63 +130,56 @@
 
     </div>
 
-}
+    <div class="d-flex flex-column flex-lg-row flex-grow-1 flex-shrink-1" style="width: 100%;">
+        <div class="flex-grow-1 flex-shrink-1 px-3 pt-4">
 
-<div class="d-flex flex-column flex-lg-row flex-grow-1 flex-shrink-1" style="width: 100%;">
-    <div class="flex-grow-1 flex-shrink-1 px-3">
-
-        <div class="row" style="width: 100%;">
-            @foreach (var mat in materialBreakdown)
-            {
+            <div class="row mx-auto" style="width: 100%;">
+                @foreach (var mat in materialBreakdown)
+                {
                 
-                <div class="col-6 col-md-4 col-xl-2 p-3"
-                    style="word-break: break-all;">
-                    <i>@(mat.Material.Contains(":") ? (mat.Material.Split(":")[0] + ":") : "")</i>
-                    <h5 class="mc-font site-fg-primary">@mat.Material.Split(":").Last()</h5>
-                    <h1 class="mc-font site-fg-accent">@mat.NetAmount.ToString("n0")</h1>
-                </div>
-
-            }
-        </div>
-
-    </div>
-    <div class="shadow border border-dark site-bg-tint event-log mx-3 mx-lg-0 mb-3 mb-lg-0"
-        style="min-height: 100%;white-space: nowrap;position: relative;">
-
-        @*
-        <a class="d-block d-lg-none" href="#skip-log"
-            style="position: absolute;right: 0;top: -30px;"
-            onclick="document.getElementById('skip-log').scrollIntoView({behavior:'smooth'})">
-            Scroll past
-        </a>
-        *@
-
-        <div style="position: absolute;left: 0;top: 0;width: 100%;height: 100%;overflow-y: auto;">
-            @foreach (var ev in history)
-            {
-
-                <div class="card shadow mt-4 p-3 mx-3" @key="@("Event-" + ev.Id)">
-                    
-
-                    <div class="d-flex flex-row" style="width: 100%;">
-                        <div class="me-4" style="position: relative;">
-                            <img src="https://i.imgur.com/Gv970bN.png" width="42" />
-                            <h4 class="mc-font site-fg-primary"
-                                style="position: absolute;right: -10px;bottom: -6px;">@ev.CCNum</h4>
-                        </div>
-
-                        <div>
-                            <h6>@ev.Type</h6>
-                            <h5 class="mc-font site-fg-accent">+@(ev.Gained)&nbsp;&nbsp;-@(Math.Abs(ev.Lost))</h5>
-                        </div>
-
-                        <i class="ms-auto ps-2" style="font-size: 11px;">@ev.Timestamp</i>
+                    <div class="d-flex flex-column col-6 col-md-4 col-xl-2 p-3"
+                         style="word-break: break-all;border-image: linear-gradient(#af7f7f, #816239, #181318) 30;border-style: solid;background: #534e4a">
+                        <i style="color: #b3906d;">@(mat.Material.Contains(":") ? (mat.Material.Split(":")[0] + ":") : "")</i>
+                        <h5 class="mc-font site-fg-primary">@mat.Material.Split(":").Last()</h5>
+                        <h2 class="mt-auto mc-font site-fg-accent">@mat.NetAmount.ToString("n0")</h2>
                     </div>
-                    
 
-                    @* Shouldn't be null *@
-                    @if ((ev.Materials?.Count ?? 0) > 0)
-                    {
+                }
+            </div>
+
+        </div>
+        <div class="shadow border border-dark site-bg-tint event-log mx-3 mx-lg-0 mb-3 mb-lg-0"
+            style="min-height: 100%;white-space: nowrap;position: relative;">
+
+            @*
+            <a class="d-block d-lg-none" href="#skip-log"
+                style="position: absolute;right: 0;top: -30px;"
+                onclick="document.getElementById('skip-log').scrollIntoView({behavior:'smooth'})">
+                Scroll past
+            </a>
+            *@
+
+            <div style="position: absolute;left: 0;top: 0;width: 100%;height: 100%;overflow-y: auto;background: #797979;">
+                @foreach (var ev in history)
+                {
+
+                    <div class="card shadow mt-4 p-3 mx-3" @key="@("Event-" + ev.Id)">
+                    
+                        <div class="d-flex flex-row" style="width: 100%;">
+                            <div class="me-4" style="position: relative;">
+                                <img src="@Images.Turtle" width="42" />
+                                <h4 class="mc-font site-fg-primary"
+                                    style="position: absolute;right: -10px;bottom: -6px;">@ev.CCNum</h4>
+                            </div>
+
+                            <div>
+                                <h6>@ev.Type</h6>
+                                <h5 class="mc-font site-fg-accent">+@(ev.Gained)&nbsp;&nbsp;-@(Math.Abs(ev.Lost))</h5>
+                            </div>
+
+                            <i class="ms-auto ps-2" style="font-size: 11px;">@ev.Timestamp</i>
+                        </div>
+                    
                         <ul class="mb-0">
                             @foreach (var mat in ev.Materials)
                             {
@@ -182,49 +189,52 @@
                                 </li>
                             }
                         </ul>
-                    }
-                </div>
 
-            }
+                    </div>
+
+                }
+            </div>
+
         </div>
-
     </div>
-</div>
-@*<h6 id="skip-log" style="height: 0;width: 0;"></h6>*@
+    @*<h6 id="skip-log" style="height: 0;width: 0;"></h6>*@
+
+}
 
 @code {
     private Event.Dashboard dashboard;
     private List<Event.NetMaterial> history = new();
     private List<Event.ByMaterial> materialBreakdown = new();
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        DateTime prev;
         while (true)
         {
-            prev = DateTime.Now;
+            var start = DateTime.Now;
             try
             {
-
                 dashboard = await events.Dashboard(null, null);
-                await InvokeAsync(StateHasChanged);
                 history = await events.History();
-                await InvokeAsync(StateHasChanged);
                 materialBreakdown = await events.MaterialBreakdown(null, null);
-                await InvokeAsync(StateHasChanged);
             } catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace.ToString());
             }
 
-            var elapsed = (DateTime.Now - prev).TotalMilliseconds;
+            var elapsed = (DateTime.Now - start).TotalMilliseconds;
             await Task.Delay(Math.Max(0, (int)(1000 - elapsed)));
+            await InvokeAsync(StateHasChanged);
+
+            await Task.Delay(1000);
+            dashboard.Now = dashboard.Now.AddSeconds(1);
+            await InvokeAsync(StateHasChanged);
         }
     }
 
-    private Event.TurtleLeaderboard? MostRecentTurtle => dashboard.TurtleLeaderboard
+    private Event.TurtleLeaderboard MostRecentTurtle => dashboard.TurtleLeaderboard
         .OrderByDescending((it) => it.LastTree)
         .Where((it) => it.LastTree is not null)
         .FirstOrDefault();
