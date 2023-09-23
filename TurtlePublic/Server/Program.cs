@@ -54,17 +54,12 @@ builder.Services.AddSwaggerGen((config) =>
             Description = "Local",
             Url = "https://localhost:7201"
         });
-        config.AddServer(new()
-        {
-            Description = "Staging",
-            Url = "https://TurtlePublic-dev.jibini.net"
-        });
     } else
     {
         config.AddServer(new()
         {
             Description = "Production",
-            Url = "https://TurtlePublic.today"
+            Url = "https://apps.jibini.net/TurtlePublic"
         });
     }
 
@@ -108,9 +103,10 @@ app.UseSwagger((config) =>
 });
 app.UseSwaggerUI((config) =>
 {
+    var hosting = app.Services.GetService<IWebHostEnvironment>();
     config.RoutePrefix = "api/docs";
-    config.SwaggerEndpoint("/api/docs/v1/swagger.json", "TurtlePublic API v1");
-    //config.SwaggerEndpoint("/api/docs/v1.1/swagger.json", "TurtlePublic API v1.1");
+    config.SwaggerEndpoint("v1/swagger.json", "TurtlePublic API v1");
+    //config.SwaggerEndpoint("v1.1/swagger.json", "TurtlePublic API v1.1");
     config.EnableTryItOutByDefault();
 });
 

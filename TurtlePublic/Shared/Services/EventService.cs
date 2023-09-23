@@ -13,8 +13,17 @@ public class EventService : Event.IBackendService
         this.repo = repo;
     }
 
+    private void ValidateReasonableRange(DateTime? RangeStart, DateTime? RangeEnd)
+    {
+        if (RangeStart.HasValue && RangeEnd.HasValue && RangeEnd - RangeStart > TimeSpan.FromDays(7))
+        {
+            throw new Exception("Reporting windows can span at most 7 days");
+        }
+    }
+
     public Task<Event.Dashboard> Dashboard(DateTime? RangeStart, DateTime? RangeEnd)
     {
+        ValidateReasonableRange(RangeStart, RangeEnd);
         return repo.dbo__Event_Dashboard(RangeStart, RangeEnd);
     }
 
@@ -25,6 +34,7 @@ public class EventService : Event.IBackendService
 
     public Task<List<Event.ByMaterial>> MaterialBreakdown(DateTime? RangeStart, DateTime? RangeEnd)
     {
+        ValidateReasonableRange(RangeStart, RangeEnd);
         return repo.dbo__EventMaterial_ByMaterial(RangeStart, RangeEnd);
     }
 }
