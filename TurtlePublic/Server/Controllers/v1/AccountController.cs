@@ -53,6 +53,11 @@ public class AccountController : ControllerBase
     }
     */
 
+    /// <summary>
+    /// Validates user credentials, producing an error message if appropriate.
+    /// </summary>
+    /// <param name="email">Unique account email address.</param>
+    /// <param name="password">Plaintext password entered during login.</param>
     [HttpPost("AttemptLogin")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -77,6 +82,7 @@ public class AccountController : ControllerBase
     /*
     TODO
     [HttpPost("SignUp")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status4...)]
     public async Task<IActionResult> SignUp(
@@ -96,6 +102,11 @@ public class AccountController : ControllerBase
     }
     */
 
+    /// <summary>
+    /// Issues a password reset token and emails the user a link (failures are
+    /// silently ignored).
+    /// </summary>
+    /// <param name="email">Email entered by user for reset.</param>
     [HttpPost("BeginReset")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -112,6 +123,11 @@ public class AccountController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Allows display of the user's name and info as they select an account
+    /// password.
+    /// </summary>
+    /// <param name="resetToken">Hex-encoded key bytes for the reset token.</param>
     [HttpPost("GetResetDetails")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -132,6 +148,11 @@ public class AccountController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Sets a new password in the database for a pending password reset.
+    /// </summary>
+    /// <param name="resetToken">Hex-encoded key bytes for the reset token.</param>
+    /// <param name="password">Plaintext password to assign to the account.</param>
     [HttpPost("ResetPassword")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]

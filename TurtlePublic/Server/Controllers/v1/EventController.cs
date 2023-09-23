@@ -1,4 +1,5 @@
 using Generated;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TurtlePublic.Controllers.v1;
@@ -14,7 +15,14 @@ public class EventController : ControllerBase
         this.events = events;
     }
 
+    /// <summary>
+    /// Sums items gathered and lost within a certain window, with leaderboard
+    /// stats.
+    /// </summary>
+    /// <param name="RangeStart">Start of the reporting window (down to the moment).</param>
+    /// <param name="RangeEnd">End of the reporting window (down to the moment).</param>
     [HttpPost("Dashboard")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [Produces(typeof(Event.Dashboard))]
     public async Task<IActionResult> Dashboard(
@@ -31,7 +39,12 @@ public class EventController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Fetches the most recent hundred turtle events and their net material
+    /// costs.
+    /// </summary>
     [HttpPost("History")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [Produces(typeof(List<Event.NetMaterial>))]
     public async Task<IActionResult> History()
@@ -46,7 +59,15 @@ public class EventController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Finds net material gains or losses within a certain window, grouped by
+    /// material name.
+    /// </summary>
+    /// <param name="RangeStart">Start of the reporting window (down to the moment).</param>
+    /// <param name="RangeEnd">End of the reporting window (down to the moment).</param>
+    /// <returns></returns>
     [HttpPost("MaterialBreakdown")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [Produces(typeof(List<Event.ByMaterial>))]
     public async Task<IActionResult> MaterialBreakdown(

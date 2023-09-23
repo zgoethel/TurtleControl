@@ -1,5 +1,7 @@
 using Generated;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using System.Reflection;
 using TurtlePublic.Extensions;
 using TurtlePublic.Services;
 
@@ -75,6 +77,9 @@ builder.Services.AddSwaggerGen((config) =>
     //        Title = "TurtlePublic API",
     //        Version = "v1.1"
     //    });
+
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    config.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
 var app = builder.Build();
