@@ -29,9 +29,7 @@ public class ModelApiAdapter : IModelApiAdapter
             throw new Exception(problem.title);
         } else
         {
-            throw new Exception(string.Format("{0}: {1}",
-                problem.title,
-                problem.detail));
+            throw new Exception(problem.detail);
         }
     }
 

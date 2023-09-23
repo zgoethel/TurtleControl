@@ -23,8 +23,14 @@ public class AccountController : ControllerBase
         int page,
         int count)
     {
-        var list = await accounts.List(page, count);
-        return Ok(list);
+        try
+        {
+            var list = await accounts.List(page, count);
+            return Ok(list);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
     }
 
     [HttpPost("Get")]
@@ -34,10 +40,16 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> Get(
         int id)
     {
-        var account = await accounts.Get(id);
-        return account is null
-            ? NotFound()
-            : Ok(account);
+        try
+        {
+            var account = await accounts.Get(id);
+            return account is null
+                ? NotFound()
+                : Ok(account);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
     }
     */
 
@@ -50,10 +62,16 @@ public class AccountController : ControllerBase
         string email,
         string password)
     {
-        var account = await accounts.AttemptLogin(email, password);
-        return account is null
-            ? Unauthorized()
-            : Ok(account);
+        try
+        {
+            var account = await accounts.AttemptLogin(email, password);
+            return account is null
+                ? Unauthorized()
+                : Ok(account);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
     }
 
     /*
@@ -67,8 +85,14 @@ public class AccountController : ControllerBase
         string lastName,
         ...)
     {
-        var list = await accounts.SignUp(...);
-        return Ok(list);
+        try
+        {
+            var list = await accounts.SignUp(...);
+            return Ok(list);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
     }
     */
 
@@ -96,10 +120,16 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> GetResetDetails(
         string resetToken)
     {
-        var account = await accounts.GetResetDetails(resetToken);
-        return account is null
-            ? Unauthorized()
-            : Ok(account);
+        try
+        {
+            var account = await accounts.GetResetDetails(resetToken);
+            return account is null
+                ? Unauthorized()
+                : Ok(account);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
     }
 
     [HttpPost("ResetPassword")]
@@ -109,7 +139,13 @@ public class AccountController : ControllerBase
         string resetToken,
         string password)
     {
-        await accounts.ResetPassword(resetToken, password);
-        return Ok();
+        try
+        {
+            await accounts.ResetPassword(resetToken, password);
+            return Ok();
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
     }
 }

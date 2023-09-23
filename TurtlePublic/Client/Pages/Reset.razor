@@ -6,10 +6,15 @@
 
 <div class="d-flex flex-row my-7 px-3" style="width: 100%;">
 
-    <div class="m-auto p-3" style="background: grey;">
-        <h1 class="mb-4">Reset</h1>
+    <div class="m-auto p-3 card" style="background: grey;width: 330px;max-width: 100%;">
+        <h3 class="mb-4">Reset</h3>
 
-        @if (string.IsNullOrEmpty(result))
+        @if (loading)
+        {
+            <div class="d-flex flex-row p-3" style="width: 100%;">
+                <i class="spinner-border m-auto" />
+            </div>
+        } else if (string.IsNullOrEmpty(result))
         {
 
             @if (!string.IsNullOrEmpty(error))
@@ -23,7 +28,8 @@
             {
                 <p class="mb-4">Enter your account's email to get started.</p>
 
-                <input type="text" class="form-control" @bind="@emailAddress" />
+                <label for="email">Email</label>
+                <input name="email" type="text" class="form-control" @bind="@emailAddress" />
                 <br />
 
                 <button class="btn btn-primary" @onclick="@StartResetAsync">Send Email</button>
@@ -31,8 +37,10 @@
             {
                 <p>Welcome, @(account?.FirstName).</p>
                 <p class="mb-4">Please select a new password for your account.</p>
+                <label for="email">Password</label>
                 <input type="password" class="form-control" @bind="@password" />
                 <br />
+                <label for="email">Repeat Password</label>
                 <input type="password" class="form-control" @bind="@repeat" />
                 <br />
 
@@ -42,7 +50,7 @@
         } else
         {
             <div class="alert alert-success">
-                @result
+                @result <a href="login">Return to Login</a>
             </div>
         }
     </div>
@@ -58,10 +66,14 @@
     private string error = "";
     private string result = "";
     private Account account;
+    private bool loading = false;
 
     private async Task StartResetAsync()
     {
         error = "";
+        loading = true;
+        await InvokeAsync(StateHasChanged);
+
         try
         {
             await accounts.BeginReset(emailAddress);
@@ -70,7 +82,17 @@
         {
             error = ex.Message;
         }
+
+        loading = false;
         await InvokeAsync(StateHasChanged);
+    }
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(Token))
+        {
+            loading = true;
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -86,6 +108,8 @@
             {
                 error = ex.Message;
             }
+
+            loading = false;
             await InvokeAsync(StateHasChanged);
         }
     }
@@ -93,6 +117,9 @@
     private async Task SetPasswordAsync()
     {
         error = "";
+        loading = true;
+        await InvokeAsync(StateHasChanged);
+
         try
         {
             if (password != repeat)
@@ -106,6 +133,8 @@
         {
             error = ex.Message;
         }
+
+        loading = false;
         await InvokeAsync(StateHasChanged);
     }
 }

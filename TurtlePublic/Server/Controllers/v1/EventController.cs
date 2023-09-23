@@ -1,7 +1,5 @@
 using Generated;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TurtlePublic.Server.Services;
 
 namespace TurtlePublic.Controllers.v1;
 
@@ -23,8 +21,14 @@ public class EventController : ControllerBase
         DateTime? RangeStart,
         DateTime? RangeEnd)
     {
-        var result = await events.Dashboard(RangeStart, RangeEnd);
-        return Ok(result);
+        try
+        {
+            var result = await events.Dashboard(RangeStart, RangeEnd);
+            return Ok(result);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
     }
 
     [HttpPost("History")]
@@ -32,8 +36,14 @@ public class EventController : ControllerBase
     [Produces(typeof(List<Event.NetMaterial>))]
     public async Task<IActionResult> History()
     {
-        var result = await events.History();
-        return Ok(result);
+        try
+        {
+            var result = await events.History();
+            return Ok(result);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
     }
 
     [HttpPost("MaterialBreakdown")]
@@ -43,7 +53,13 @@ public class EventController : ControllerBase
         DateTime? RangeStart,
         DateTime? RangeEnd)
     {
-        var result = await events.MaterialBreakdown(RangeStart, RangeEnd);
-        return Ok(result);
+        try
+        {
+            var result = await events.MaterialBreakdown(RangeStart, RangeEnd);
+            return Ok(result);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
     }
 }
