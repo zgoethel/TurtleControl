@@ -102,6 +102,10 @@ public class AccountService : Account.IBackendService
 
     public async Task BeginReset(string email)
     {
+        if (string.IsNullOrEmpty(email))
+        {
+            throw new ValidationException("Email cannot be blank");
+        }
         try
         {
             _ = new MailAddress(email);

@@ -24,11 +24,10 @@
             }
 
             <label for="username">Username</label>
-            <input name="username" type="text" class="form-control" @bind="@email" />
-            <br />
+            <input name="username" type="text" class="form-control mb-4" @bind="@email" />
+            
             <label for="password">Password</label>
-            <input type="password" class="form-control" @bind="@password" />
-            <br />
+            <input type="password" class="form-control mb-4" @bind="@password" />
 
             <div class="d-flex flex-row" style="width: 100%;">
                 <button class="btn btn-primary" @onclick="@LogInAsync">Log In</button>
@@ -71,6 +70,7 @@
         } catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.ToString());
             error = "Username or password is incorrect";
         }
 

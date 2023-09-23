@@ -1,4 +1,5 @@
 ﻿@page "/"
+@implements IDisposable
 @inject Event.IService events
 
 <PageTitle>Turtle Stats</PageTitle>
@@ -205,12 +206,13 @@
     private Event.Dashboard dashboard;
     private List<Event.NetMaterial> history = new();
     private List<Event.ByMaterial> materialBreakdown = new();
+    private bool running = true;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        while (true)
+        while (running)
         {
             var start = DateTime.Now;
             try
@@ -242,4 +244,9 @@
     private TimeSpan? SinceLastTree => dashboard.Now - MostRecentTurtle.LastTree;
     // Do not call if HarvestedTrees is zero
     private decimal SecsPerTree => (decimal)(24 * 60 * 60) / dashboard.HarvestedTrees;
+
+    void IDisposable.Dispose()
+    {
+        running = false;
+    }
 }

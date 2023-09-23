@@ -99,7 +99,8 @@ app.UseStaticFiles();
 app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
-app.MapFallbackToFile("index.html");
+//app.MapFallbackToFile("index.html");
+app.MapFallbackToPage("/_Host");
 
 app.UseSwagger((config) =>
 {

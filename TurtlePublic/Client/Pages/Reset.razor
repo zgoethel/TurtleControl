@@ -29,8 +29,7 @@
                 <p class="mb-4">Enter your account's email to get started.</p>
 
                 <label for="email">Email</label>
-                <input name="email" type="text" class="form-control" @bind="@emailAddress" />
-                <br />
+                <input name="email" type="text" class="form-control mb-4" @bind="@emailAddress" />
 
                 <button class="btn btn-primary" @onclick="@StartResetAsync">Send Email</button>
             } else if (account is not null)
@@ -38,11 +37,10 @@
                 <p>Welcome, @(account?.FirstName).</p>
                 <p class="mb-4">Please select a new password for your account.</p>
                 <label for="email">Password</label>
-                <input type="password" class="form-control" @bind="@password" />
-                <br />
+                <input type="password" class="form-control mb-4" @bind="@password" />
+                
                 <label for="email">Repeat Password</label>
-                <input type="password" class="form-control" @bind="@repeat" />
-                <br />
+                <input type="password" class="form-control mb-4" @bind="@repeat" />
 
                 <button class="btn btn-primary" @onclick="@SetPasswordAsync">Set Password</button>
             }
