@@ -1,9 +1,13 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
 html, body {
-    font-family: cursive, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Fenix', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background: #514e4a;
     color: white;
+}
+
+.cursive {
+    font-family: 'Croissant One', cursive;
 }
 
 #app {
@@ -118,4 +122,24 @@ a, .btn-link {
 
 c {
     font-family: monospace;
+}
+
+.site-fg-accent {
+    color: #e5c098;
+}
+
+.site-fg-primary {
+    color: #ad8787;
+}
+
+.site-bg-dark {
+    background: #22272d;
+}
+
+.site-bg-grey {
+    background: #313639;
+}
+
+.site-bg-tint {
+    background: #f3f3f3;
 }

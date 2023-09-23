@@ -9,7 +9,7 @@
 
     <div class="d-flex flex-row" style="width: 100%;" @key="@Guid.NewGuid()">
         <i class="ms-auto spinner-border my-auto" />
-        <h4 class="ms-3 my-auto me-auto">
+        <h4 class="ms-3 my-auto me-auto cursive">
             @switch (Random.Shared.Next(3))
             {
                 case 0:
@@ -63,7 +63,7 @@
                         </div>
                         <img src="@Images.Tree" width="130" class="me-4" style="float: left;" />
 
-                        <h5><strong>Last tree</strong></h5>
+                        <h5 class="cursive"><strong>Last tree</strong></h5>
                         <h4>
                             @MostRecentTurtle.LastTree.Value.ToLongDateString()
                             @@
@@ -81,7 +81,7 @@
 
                         <center>
                             <img src="@Images.Turtle" width="80" class="my-2" />
-                            <h6 class="mb-0">by</h6>
+                            <h6 class="mb-0 cursive">by</h6>
                             <h3><c>Turtle @MostRecentTurtle.CCNum</c></h3>
                         </center>
 
@@ -95,7 +95,7 @@
             style="height: 250px;max-width: 100%;overflow: auto;margin-top: 1rem;">
 
             <center>
-                <h5 class="mt-4"><strong>Leaderboard</strong></h5>
+                <h5 class="mt-4 cursive"><strong>Leaderboard</strong></h5>
             </center>
 
             <table class="table mb-0 mx-auto"
@@ -140,7 +140,7 @@
                 
                     <div class="d-flex flex-column col-6 col-md-4 col-xl-2 p-3"
                          style="word-break: break-all;border-image: linear-gradient(#af7f7f, #816239, #181318) 30;border-style: solid;background: #534e4a">
-                        <i style="color: #b3906d;">@(mat.Material.Contains(":") ? (mat.Material.Split(":")[0] + ":") : "")</i>
+                        <i style="color: #b3906d;font-size: 0.85rem;" class="cursive">@(mat.Material.Contains(":") ? (mat.Material.Split(":")[0] + ":") : "")</i>
                         <h5 class="mc-font site-fg-primary">@mat.Material.Split(":").Last()</h5>
                         <h2 class="mt-auto mc-font site-fg-accent">@mat.NetAmount.ToString("n0")</h2>
                     </div>
