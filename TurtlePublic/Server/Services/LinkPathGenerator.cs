@@ -13,8 +13,16 @@ public class LinkPathGenerator : ILinkPathGenerator
     public string GenerateActionPath(params string[] pieces)
     {
         var path = new StringBuilder();
-        path.Append(httpContext.HttpContext.Request.PathBase.ToString().TrimEnd('/'));
-        
+        var req = httpContext.HttpContext.Request;
+        path.Append(req.Scheme);
+        path.Append("://");
+        path.Append(req.Host);
+        if (!string.IsNullOrEmpty(req.PathBase.ToString().Trim('/')))
+        {
+            path.Append('/');
+            path.Append(req.PathBase.ToString().Trim('/'));
+        }
+
         foreach (var p in pieces)
         {
             path.Append('/');

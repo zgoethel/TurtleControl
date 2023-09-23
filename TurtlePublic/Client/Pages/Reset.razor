@@ -1,25 +1,111 @@
-﻿@using MailKit
-@page "/reset"
+﻿@page "/reset"
+@page "/reset/{Token}"
+@inject Account.IService accounts
 
 <PageTitle>Reset</PageTitle>
 
 <div class="d-flex flex-row my-7 px-3" style="width: 100%;">
 
     <div class="m-auto p-3" style="background: grey;">
-        <h1>Reset</h1>
+        <h1 class="mb-4">Reset</h1>
 
-        <input type="text" @bind="@emailAddress" />
+        @if (string.IsNullOrEmpty(result))
+        {
 
-        <button @onclick="@StartResetAsync">Send email</button>
+            @if (!string.IsNullOrEmpty(error))
+            {
+                <div class="alert alert-danger">
+                    @error
+                </div>
+            }
+
+            @if (string.IsNullOrEmpty(Token))
+            {
+                <p class="mb-4">Enter your account's email to get started.</p>
+
+                <input type="text" class="form-control" @bind="@emailAddress" />
+                <br />
+
+                <button class="btn btn-primary" @onclick="@StartResetAsync">Send Email</button>
+            } else if (account is not null)
+            {
+                <p>Welcome, @(account?.FirstName).</p>
+                <p class="mb-4">Please select a new password for your account.</p>
+                <input type="password" class="form-control" @bind="@password" />
+                <br />
+                <input type="password" class="form-control" @bind="@repeat" />
+                <br />
+
+                <button class="btn btn-primary" @onclick="@SetPasswordAsync">Set Password</button>
+            }
+
+        } else
+        {
+            <div class="alert alert-success">
+                @result
+            </div>
+        }
     </div>
 
 </div>
 
 @code {
+    [Parameter]
+    public string Token { get; set; }
+
     private string emailAddress = "";
+    private string password = "", repeat = "";
+    private string error = "";
+    private string result = "";
+    private Account account;
 
     private async Task StartResetAsync()
     {
-        
+        error = "";
+        try
+        {
+            await accounts.BeginReset(emailAddress);
+            result = "Password reset email has been sent";
+        } catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        if (!string.IsNullOrEmpty(Token))
+        {
+            try
+            {
+                account = await accounts.GetResetDetails(Token);
+            } catch (Exception ex)
+            {
+                error = ex.Message;
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task SetPasswordAsync()
+    {
+        error = "";
+        try
+        {
+            if (password != repeat)
+            {
+                throw new Exception("Password fields must match");
+            }
+
+            await accounts.ResetPassword(Token, password);
+            result = "New password has been set";
+        } catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        await InvokeAsync(StateHasChanged);
     }
 }

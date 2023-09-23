@@ -1,11 +1,67 @@
 ﻿@page "/login"
+@inject Account.IService accounts
 
 <PageTitle>Login</PageTitle>
 
 <div class="d-flex flex-row my-7 px-3" style="width: 100%;">
 
     <div class="m-auto p-3" style="background: grey;">
-        <h1>Log in</h1>
+        <h1 class="mb-4">Log in</h1>
+
+        @if (string.IsNullOrEmpty(result))
+        {
+
+            @if (!string.IsNullOrEmpty(error))
+            {
+                <div class="alert alert-danger">
+                    @error
+                </div>
+            }
+
+            <input type="text" class="form-control" @bind="@email" />
+            <br />
+            <input type="password" class="form-control" @bind="@password" />
+            <br />
+
+            <div class="d-flex flex-row" style="width: 100%;">
+                <button class="btn btn-primary" @onclick="@LogInAsync">Log In</button>
+                <a href="reset" class="ms-auto my-auto">Forgot password?</a>
+            </div>
+
+        } else
+        {
+            <div class="alert alert-success">
+                @result
+            </div>
+        }
     </div>
 
 </div>
+
+@code {
+    private string email = "";
+    private string password = "";
+    private string error = "";
+    private string result = "";
+
+    private async Task LogInAsync()
+    {
+        error = "";
+        try
+        {
+            var account = await accounts.AttemptLogin(email, password);
+            if (account is null)
+            {
+                throw new Exception("No account returned from database");
+            } else
+            {
+                result = "Login success";
+            }
+        } catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            error = "Username or password is incorrect";
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+}

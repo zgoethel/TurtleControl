@@ -1,7 +1,10 @@
 ﻿using Generated;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
+using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web;
 
 namespace TurtlePublic.Services;
 
@@ -99,6 +102,14 @@ public class AccountService : Account.IBackendService
 
     public async Task BeginReset(string email)
     {
+        try
+        {
+            _ = new MailAddress(email);
+        } catch (FormatException)
+        {
+            throw new ValidationException("Provide a valid email address");
+        }
+
         var keyBytes = RandomNumberGenerator.GetBytes(64);
         var key = Convert.ToBase64String(keyBytes);
         var keyHash = CalculateHash(nameof(SaltedPbkdf2), key, "");
@@ -112,7 +123,8 @@ public class AccountService : Account.IBackendService
             logger.LogInformation("User '{0}' requested password reset", email);
 
             var concatName = $"{account.FirstName} {account.LastName}".Trim();
-            var link = linkPathGen.GenerateActionPath("reset", key);
+            var hexKey = Convert.ToHexString(keyBytes);
+            var link = linkPathGen.GenerateActionPath("reset", HttpUtility.UrlEncode(hexKey));
 
             await emailSender.SendEmailAsync(account.Email,
                 "Account password reset",
@@ -134,12 +146,24 @@ public class AccountService : Account.IBackendService
 
     public async Task<Account> GetResetDetails(string resetToken)
     {
-        return await repo.dbo__Account_GetByResetToken(resetToken);
+        var key = Convert.ToBase64String(Convert.FromHexString(resetToken));
+        var keyHash = CalculateHash(nameof(SaltedPbkdf2), key, "");
+        return await repo.dbo__Account_GetByResetToken(keyHash);
     }
 
     public async Task ResetPassword(string resetToken, string password)
     {
-        var keyHash = CalculateHash(nameof(SaltedPbkdf2), resetToken, "");
+        if (string.IsNullOrEmpty(password))
+        {
+            throw new ValidationException("Password cannot be blank");
+        }
+        if (password.Length < 8)
+        {
+            throw new ValidationException("Password must be at least 8 characters");
+        }
+
+        var key = Convert.ToBase64String(Convert.FromHexString(resetToken));
+        var keyHash = CalculateHash(nameof(SaltedPbkdf2), key, "");
         var salt = CreateSalt();
         var passwordHash = CalculateHash(CURRENT_PASSWORD_SCHEME, password, salt);
 
