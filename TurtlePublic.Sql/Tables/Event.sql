@@ -22,3 +22,7 @@ GO
 CREATE NONCLUSTERED INDEX [IX_Event_Type]
     ON [dbo].[Event]([Type] ASC);
 
+
+GO
+
+CREATE INDEX [IX_Event_CCType_CCNum_Timestamp] ON [dbo].[Event] ([CCType], [CCNum], [Timestamp])

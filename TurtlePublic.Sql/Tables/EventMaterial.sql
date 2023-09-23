@@ -8,3 +8,7 @@
     CONSTRAINT [FK_EventMaterial_Event] FOREIGN KEY ([EventId]) REFERENCES [dbo].[Event] ([Id])
 );
 
+
+GO
+
+CREATE INDEX [IX_EventMaterial_Material] ON [dbo].[EventMaterial] ([Material]) INCLUDE ([NetAmount])
