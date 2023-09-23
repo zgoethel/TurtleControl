@@ -1,0 +1,25 @@
+﻿@using MailKit
+@page "/reset"
+
+<PageTitle>Reset</PageTitle>
+
+<div class="d-flex flex-row my-7 px-3" style="width: 100%;">
+
+    <div class="m-auto p-3" style="background: grey;">
+        <h1>Reset</h1>
+
+        <input type="text" @bind="@emailAddress" />
+
+        <button @onclick="@StartResetAsync">Send email</button>
+    </div>
+
+</div>
+
+@code {
+    private string emailAddress = "";
+
+    private async Task StartResetAsync()
+    {
+        
+    }
+}

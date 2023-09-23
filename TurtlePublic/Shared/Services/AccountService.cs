@@ -9,10 +9,14 @@ public class AccountService : Account.IBackendService
 {
     private readonly ILogger<AccountService> logger;
     private readonly Account.Repository repo;
-    public AccountService(ILogger<AccountService> logger, Account.Repository repo)
+    private readonly IEmailSender emailSender;
+    private readonly ILinkPathGenerator linkPathGen;
+    public AccountService(ILogger<AccountService> logger, Account.Repository repo, IEmailSender emailSender, ILinkPathGenerator linkPathGen)
     {
         this.logger = logger;
         this.repo = repo;
+        this.emailSender = emailSender;
+        this.linkPathGen = linkPathGen;
     }
 
     public async Task<Account> Get(int id)
@@ -106,7 +110,25 @@ public class AccountService : Account.IBackendService
         } else
         {
             logger.LogInformation("User '{0}' requested password reset", email);
-            //TODO await SendResetEmail(...);
+
+            var concatName = $"{account.FirstName} {account.LastName}".Trim();
+            var link = linkPathGen.GenerateActionPath("reset", key);
+
+            await emailSender.SendEmailAsync(account.Email,
+                "Account password reset",
+                $"""
+                <html>
+                    <p>Hello {concatName},</p>
+                    <p>Click <a href="{link}">this link</a> to set an account password.</p>
+                    <br />
+                    <p>Can't click the link? Try this one:</p>
+                    <p><a href="{link}">{link}</a></p>
+                    <br />
+                    <p>&mdash;</p>
+                    <p>Thanks,</p>
+                    <p>Turtles</p>
+                </html>
+                """);
         }
     }
 
@@ -117,10 +139,11 @@ public class AccountService : Account.IBackendService
 
     public async Task ResetPassword(string resetToken, string password)
     {
+        var keyHash = CalculateHash(nameof(SaltedPbkdf2), resetToken, "");
         var salt = CreateSalt();
         var passwordHash = CalculateHash(CURRENT_PASSWORD_SCHEME, password, salt);
 
-        var account = await repo.dbo__Account_ResetPassword(resetToken, CURRENT_PASSWORD_SCHEME, passwordHash, salt);
+        var account = await repo.dbo__Account_ResetPassword(keyHash, CURRENT_PASSWORD_SCHEME, passwordHash, salt);
         if (account is null)
         {
             logger.LogWarning("User attempted to reset password with invalid token");

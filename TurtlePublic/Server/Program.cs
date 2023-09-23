@@ -4,8 +4,11 @@ using TurtlePublic.Extensions;
 using TurtlePublic.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IModelDbAdapter, ModelDbAdapter>();
 builder.Services.AddScoped<IModelDbWrapper, ModelDbWrapper>();
+builder.Services.AddScoped<ILinkPathGenerator, LinkPathGenerator>();
+builder.Services.AddSingleton<IEmailSender, EmailSender>();
 builder.Services.AddTurtlePublicBackend();
 
 builder.Services.AddControllersWithViews((config) =>

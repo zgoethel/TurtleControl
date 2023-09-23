@@ -65,13 +65,7 @@
     <Folder Include="Views" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Stored Procedures\Event_AddMaterial.sql" />
-    <Build Include="Stored Procedures\Event_Begin.sql" />
-    <Build Include="Stored Procedures\Event_Dashboard.sql" />
-    <Build Include="Tables\Event.sql" />
-    <Build Include="Tables\EventMaterial.sql" />
-    <Build Include="Views\EventNetMaterial.sql" />
-    <Build Include="Stored Procedures\EventMaterial_ByMaterial.sql" />
-    <Build Include="Stored Procedures\Event_History.sql" />
+    <Build Include="Stored Procedures\*.sql" />
+    <Build Include="Tables\*.sql" />
   </ItemGroup>
 </Project>
