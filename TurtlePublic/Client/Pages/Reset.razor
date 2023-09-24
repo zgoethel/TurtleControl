@@ -1,5 +1,7 @@
 ﻿@page "/reset"
 @page "/reset/{Token}"
+@using Microsoft.AspNetCore.Authorization;
+@attribute [AllowAnonymous]
 @inject Account.IService accounts
 
 <PageTitle>Reset</PageTitle>

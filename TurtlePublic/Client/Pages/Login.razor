@@ -1,5 +1,10 @@
 ﻿@page "/login"
+@page "/logout"
+@using Microsoft.AspNetCore.Authorization;
+@attribute [AllowAnonymous]
 @inject Account.IService accounts
+@inject IModelApiAdapter apiAdapter
+@inject NavigationManager navMan
 
 <PageTitle>Login</PageTitle>
 
@@ -50,7 +55,20 @@
     private string password = "";
     private string error = "";
     private string result = "";
-    private bool loading = false;
+    private bool loading = true;
+
+    override protected async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        if (navMan.Uri.EndsWith("logout"))
+        {
+            await LogOutAsync();
+        } else
+        {
+            loading = false;
+        }
+    }
 
     private async Task LogInAsync()
     {
@@ -67,6 +85,9 @@
             } else
             {
                 result = "Login success";
+                await (apiAdapter as ModelApiAdapter).StoreSessionTokenAsync(account);
+
+                navMan.NavigateTo("");
             }
         } catch (Exception ex)
         {
@@ -77,5 +98,13 @@
 
         loading = false;
         await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LogOutAsync()
+    {
+        await accounts.LogOut();
+        await (apiAdapter as ModelApiAdapter).DestroySessionTokenAsync();
+
+        navMan.NavigateTo("");
     }
 }

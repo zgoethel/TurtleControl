@@ -5,6 +5,7 @@ using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
+using TurtlePublic.Extensions;
 
 namespace TurtlePublic.Services;
 
@@ -14,12 +15,14 @@ public class AccountService : Account.IBackendService
     private readonly Account.Repository repo;
     private readonly IEmailSender emailSender;
     private readonly ILinkPathGenerator linkPathGen;
-    public AccountService(ILogger<AccountService> logger, Account.Repository repo, IEmailSender emailSender, ILinkPathGenerator linkPathGen)
+    private readonly IJwtAuthService jwtAuth;
+    public AccountService(ILogger<AccountService> logger, Account.Repository repo, IEmailSender emailSender, ILinkPathGenerator linkPathGen, IJwtAuthService jwtAuth)
     {
         this.logger = logger;
         this.repo = repo;
         this.emailSender = emailSender;
         this.linkPathGen = linkPathGen;
+        this.jwtAuth = jwtAuth;
     }
 
     public async Task<Account> Get(int id)
@@ -64,10 +67,10 @@ public class AccountService : Account.IBackendService
         };
     }
 
-    public async Task<Account> AttemptLogin(string email, string password)
+    public async Task<Account.WithSession> AttemptLogin(string email, string password)
     {
-        var account = await repo.dbo__Account_GetWithPassword(email);
-        if (account is null)
+        var verify = await repo.dbo__Account_GetWithPassword(email);
+        if (verify is null)
         {
             return null;
         }
@@ -82,8 +85,8 @@ public class AccountService : Account.IBackendService
 
         try
         {
-            var hash = CalculateHash(account.PasswordScheme, password, account.PasswordSalt);
-            if (hash == account.PasswordHash)
+            var hash = CalculateHash(verify.PasswordScheme, password, verify.PasswordSalt);
+            if (hash == verify.PasswordHash)
             {
                 logger.LogInformation("User '{0}' has provided valid login credentials", email);
             } else
@@ -92,12 +95,20 @@ public class AccountService : Account.IBackendService
                 return null;
             }
 
-            return await repo.dbo__Account_GetById(account.Id);
+            var account = await repo.dbo__Account_GetWithRoles(verify.Id);
+            jwtAuth.GenerateToken(account, out var result);
+            return result;
         } catch (Exception ex)
         {
             logger.LogError(ex, "User '{0}' encountered an error during login", email);
             return null;
         }
+    }
+
+    public Task LogOut()
+    {
+        // With JWT, this is a purely API-related task
+        return Task.CompletedTask;
     }
 
     public async Task BeginReset(string email)

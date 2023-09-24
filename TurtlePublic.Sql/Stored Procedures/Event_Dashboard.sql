@@ -53,7 +53,8 @@ BEGIN
 			 WHERE em2.Material NOT IN (
                 'minecraft:oak_log',
 				'minecraft:oak_sapling',
-				'minecraft:stick')
+				'minecraft:stick',
+                'delightful:acorn')
 			 GROUP BY em2.Material
 			 ORDER BY SUM(em2.NetAmount) DESC)
 			'FavoriteExtra'

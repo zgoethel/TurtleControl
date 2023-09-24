@@ -54,7 +54,8 @@ public class AccountController : ControllerBase
     */
 
     /// <summary>
-    /// Validates user credentials, producing an error message if appropriate.
+    /// Validates user credentials, creating a session on success and a producing
+    /// an error code on failure.
     /// </summary>
     /// <param name="email">Unique account email address.</param>
     /// <param name="password">Plaintext password entered during login.</param>
@@ -70,9 +71,35 @@ public class AccountController : ControllerBase
         try
         {
             var account = await accounts.AttemptLogin(email, password);
+
+            HttpContext.Session.SetString("ResetToken", account.ResetToken);
+            account.ResetToken = "Content omitted";
+
             return account is null
                 ? Unauthorized()
                 : Ok(account);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Destroys any existing session data containing refresh tokens for the user.
+    /// </summary>
+    [HttpPost("LogOut")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> LogOut()
+    {
+        try
+        {
+            if (HttpContext.Session is not null)
+            {
+                HttpContext.Session.Clear();
+            }
+            await accounts.LogOut();
+            return Ok();
         } catch (Exception ex)
         {
             return Problem(ex.Message);

@@ -1,15 +1,36 @@
-﻿<div class="d-flex flex-row p-2" style="width: 100%;">
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager navMan
+
+<div class="d-flex flex-row p-2" style="width: 100%;">
 
     <a class="mx-2" href="api/docs">API Docs</a>
 
-    <div class="ms-auto d-flex flex-row">
-        <i class="oi oi-person" />
-        <span class="ms-2">Guest</span>
-        <a class="mx-2" href="login">Log in</a>
-    </div>
+    <AuthorizeView>
+        <Authorized>
+
+            <div class="ms-auto d-flex flex-row">
+                <i class="oi oi-person" />
+                <span class="ms-2">@context.User.Identity.Name</span>
+                <a class="mx-2" href="javascript:void(0);" @onclick="@LogOut">Log out</a>
+            </div>
+            
+        </Authorized>
+        <NotAuthorized>
+
+            <div class="ms-auto d-flex flex-row">
+                <i class="oi oi-person" />
+                <span class="ms-2">Guest</span>
+                <a class="mx-2" href="login">Log in</a>
+            </div>
+
+        </NotAuthorized>
+    </AuthorizeView>
 
 </div>
 
 @code {
-
+    private void LogOut()
+    {
+        navMan.NavigateTo("logout", navMan.Uri.EndsWith("login"));
+    }
 }

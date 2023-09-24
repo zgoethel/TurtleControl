@@ -1,4 +1,6 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Authorization;
+@attribute [AllowAnonymous]
 @implements IDisposable
 @inject Event.IService events
 

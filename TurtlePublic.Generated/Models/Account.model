@@ -17,8 +17,22 @@ partial WithReset {
 	DateTime? ResetIssued
 }
 
+{
+	public class RoleName
+	{
+		public string Name { get; set; }
+	}
+}
+
+partial WithRoles {
+	List<RoleName> roles = {new()}
+}
+
 partial WithSession {
-	string SessionToken = {""}
+	string SessionToken = {""},
+	DateTime? SessionExpiration,
+	string ResetToken = {""},
+	DateTime? ResetExpiration
 }
 
 repo {
@@ -40,6 +54,9 @@ repo {
 	dbo.Account_GetByResetToken(string resetToken)
 		=> Account.WithReset,
 
+	dbo.Account_GetWithRoles(int id)
+		=> Account.WithRoles,
+
 	dbo.Account_ResetPassword(string resetToken, string passwordScheme, string passwordHash, string passwordSalt)
 		=> Account
 }
@@ -52,7 +69,9 @@ service {
 		=> Account,
 
 	AttemptLogin(string email, string password)
-		=> Account,
+		=> Account.WithSession,
+
+	LogOut(),
 
 	BeginReset(string email),
 

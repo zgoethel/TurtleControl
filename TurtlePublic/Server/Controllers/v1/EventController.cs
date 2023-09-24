@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace TurtlePublic.Controllers.v1;
 
 [ApiController]
+[Authorize]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1")]
 public class EventController : ControllerBase
