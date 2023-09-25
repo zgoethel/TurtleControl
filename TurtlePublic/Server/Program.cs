@@ -110,7 +110,6 @@ builder.Services.AddAuthentication((config) =>
     var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
     var skewSeconds = builder.Configuration.GetValue<int>("Jwt:SkewSeconds");
 
-    config.RequireHttpsMetadata = false;
     config.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = false,

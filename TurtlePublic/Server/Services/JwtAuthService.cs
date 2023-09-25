@@ -31,12 +31,13 @@ public class JwtAuthService : IJwtAuthService
         session = account.ConvertTo<Account.WithSession>();
         var claims = new List<Claim>()
         {
-            new(ClaimTypes.Name, account.Email)
+            new(ClaimTypes.Name, account.Email),
+            new("Id", account.Id.ToString())
         };
 
         var resetKey = config.GetValue<string>("Jwt:RefreshKey");
         var resetSeconds = config.GetValue<int>("Jwt:RefreshSeconds");
-        (session.ResetToken, session.ResetExpiration) = GenerateToken(resetKey, resetSeconds, claims);
+        (session.RefreshToken, session.RefreshExpiration) = GenerateToken(resetKey, resetSeconds, claims);
 
         foreach (var role in account.roles)
         {
@@ -46,5 +47,49 @@ public class JwtAuthService : IJwtAuthService
         var key = config.GetValue<string>("Jwt:Key");
         var lifespanSeconds = config.GetValue<int>("Jwt:LifespanSeconds");
         (session.SessionToken, session.SessionExpiration) = GenerateToken(key, lifespanSeconds, claims);
+    }
+
+    public int GetUserId(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(token);
+        var idStr = jwt.Claims.First((it) => it.Type == "Id").Value;
+        return int.Parse(idStr);
+    }
+
+    public async Task<bool> WasTokenEverValidAsync(string token)
+    {
+        var signingKey = config.GetValue<string>("Jwt:Key");
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
+        var handler = new JwtSecurityTokenHandler();
+
+        var v = await handler.ValidateTokenAsync(token, new()
+        {
+            ValidateAudience = false,
+            ValidateIssuer = false,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = false,
+            IssuerSigningKey = key
+        });
+        return v.IsValid;
+    }
+
+    public async Task<bool> IsRefreshTokenValidAsync(string refreshToken)
+    {
+        var signingKey = config.GetValue<string>("Jwt:RefreshKey");
+        var skew = config.GetValue<int>("Jwt:SkewSeconds");
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
+        var handler = new JwtSecurityTokenHandler();
+
+        var v = await handler.ValidateTokenAsync(refreshToken, new()
+        {
+            ValidateAudience = false,
+            ValidateIssuer = false,
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            IssuerSigningKey = key,
+            ClockSkew = TimeSpan.FromSeconds(skew)
+        });
+        return v.IsValid;
     }
 }

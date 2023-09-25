@@ -31,8 +31,8 @@ partial WithRoles {
 partial WithSession {
 	string SessionToken = {""},
 	DateTime? SessionExpiration,
-	string ResetToken = {""},
-	DateTime? ResetExpiration
+	string RefreshToken = {""},
+	DateTime? RefreshExpiration
 }
 
 repo {
@@ -72,6 +72,9 @@ service {
 		=> Account.WithSession,
 
 	LogOut(),
+
+	Refresh(string accessToken, string refreshToken)
+		=> Account.WithSession,
 
 	BeginReset(string email),
 

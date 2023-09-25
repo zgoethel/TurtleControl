@@ -31,6 +31,8 @@
 @code {
     private void LogOut()
     {
+        // Due to laziness, login/out are shared and need to be fully refreshed
+        // (only if going straight from login page to logout)
         navMan.NavigateTo("logout", navMan.Uri.EndsWith("login"));
     }
 }

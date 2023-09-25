@@ -5,7 +5,6 @@ using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
-using TurtlePublic.Extensions;
 
 namespace TurtlePublic.Services;
 
@@ -109,6 +108,33 @@ public class AccountService : Account.IBackendService
     {
         // With JWT, this is a purely API-related task
         return Task.CompletedTask;
+    }
+
+    public async Task<Account.WithSession> Refresh(string accessToken, string refreshToken)
+    {
+        try
+        {
+            var validToken = await jwtAuth.WasTokenEverValidAsync(accessToken);
+            var refreshValid = await jwtAuth.IsRefreshTokenValidAsync(refreshToken);
+            if (!validToken || !refreshValid)
+            {
+                throw new Exception("Access denied due to invalid tokens");
+            }
+
+            var id = jwtAuth.GetUserId(refreshToken);
+            if (id != jwtAuth.GetUserId(accessToken))
+            {
+                throw new Exception("Refresh and access user IDs do not match");
+            }
+
+            var account = await repo.dbo__Account_GetWithRoles(id);
+            jwtAuth.GenerateToken(account, out var session);
+            return session;
+        } catch (Exception ex)
+        {
+            logger.LogError(ex, "Silently failed to refresh auth tokens");
+            throw;
+        }
     }
 
     public async Task BeginReset(string email)

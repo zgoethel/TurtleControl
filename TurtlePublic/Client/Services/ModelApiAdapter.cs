@@ -12,10 +12,12 @@ public class ModelApiAdapter : AuthenticationStateProvider, IModelApiAdapter
 {
     private readonly HttpClient http;
     private readonly IJSRuntime js;
-    public ModelApiAdapter(HttpClient http, IJSRuntime js)
+    private readonly IServiceProvider sp;
+    public ModelApiAdapter(HttpClient http, IJSRuntime js, IServiceProvider sp)
     {
         this.http = http;
         this.js = js;
+        this.sp = sp;
     }
 
     internal record ProblemDetails(
@@ -39,8 +41,17 @@ public class ModelApiAdapter : AuthenticationStateProvider, IModelApiAdapter
         }
     }
 
+    // Set to avoid checking token expiry after discovering tokens are
+    // soon to expire (allows refresh API call w/o infinite loop)
+    private bool IgnoreTokens = false;
+
     public async Task ExecuteAsync(string path, object args)
     {
+        if (!IgnoreTokens)
+        {
+            await GetAuthenticationStateAsync();
+        }
+
         var result = await http.PostAsJsonAsync(path, args);
         if (!result.IsSuccessStatusCode)
         {
@@ -50,6 +61,11 @@ public class ModelApiAdapter : AuthenticationStateProvider, IModelApiAdapter
 
     public async Task<T> ExecuteAsync<T>(string path, object args)
     {
+        if (!IgnoreTokens)
+        {
+            await GetAuthenticationStateAsync();
+        }
+
         var result = await http.PostAsJsonAsync(path, args);
         if (!result.IsSuccessStatusCode)
         {
@@ -59,10 +75,13 @@ public class ModelApiAdapter : AuthenticationStateProvider, IModelApiAdapter
         return content.FromJson<T>();
     }
 
-    public async Task StoreSessionTokenAsync(Account.WithSession session)
+    public async Task StoreSessionTokenAsync(Account.WithSession session, bool notify = true)
     {
         await js.InvokeVoidAsync("localStorage.setItem", "TurtleControl_Session", session.SessionToken);
-        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        if (notify)
+        {
+            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        }
     }
 
     public async Task<string> RetrieveSessionTokenAsync()
@@ -89,16 +108,26 @@ public class ModelApiAdapter : AuthenticationStateProvider, IModelApiAdapter
             var handler = new JwtSecurityTokenHandler();
             var jwt = handler.ReadJwtToken(token);
 
-            if (DateTime.UtcNow < jwt.ValidTo)
+            if (DateTime.UtcNow.AddMinutes(30) > jwt.ValidTo)
             {
-                var identity = new ClaimsIdentity(jwt.Claims, "LoggedIn");
-                var principal = new ClaimsPrincipal(identity);
-                return new AuthenticationState(principal);
-            } else
-            {
-                //TODO Refresh
-                goto unauthorized;
+                IgnoreTokens = true;
+                try
+                {
+                    var accounts = sp.GetRequiredService<Account.IService>();
+                    // Client does not know the refresh token; it is inserted at the API
+                    var refreshed = await accounts.Refresh(token, "");
+                    await StoreSessionTokenAsync(refreshed, false);
+                    jwt = handler.ReadJwtToken(refreshed.SessionToken);
+                } finally
+                {
+                    IgnoreTokens = false;
+                }
+                
             }
+
+            var identity = new ClaimsIdentity(jwt.Claims, "LoggedIn");
+            var principal = new ClaimsPrincipal(identity);
+            return new AuthenticationState(principal);
         } catch (Exception)
         {
             goto unauthorized;

@@ -63,7 +63,7 @@ public class AccountController : ControllerBase
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [Produces(typeof(Account))]
+    [Produces(typeof(Account.WithSession))]
     public async Task<IActionResult> AttemptLogin(
         string email,
         string password)
@@ -72,8 +72,8 @@ public class AccountController : ControllerBase
         {
             var account = await accounts.AttemptLogin(email, password);
 
-            HttpContext.Session.SetString("ResetToken", account.ResetToken);
-            account.ResetToken = "Content omitted";
+            HttpContext.Session.SetString("RefreshToken", account.RefreshToken);
+            account.RefreshToken = "Content omitted";
 
             return account is null
                 ? Unauthorized()
@@ -98,8 +98,48 @@ public class AccountController : ControllerBase
             {
                 HttpContext.Session.Clear();
             }
+
             await accounts.LogOut();
             return Ok();
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Creates a new set of access and refresh tokens, storing the refresh again in session.
+    /// </summary>
+    [HttpPost("Refresh")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Produces(typeof(Account.WithSession))]
+    public async Task<IActionResult> Refresh(string accessToken, string refreshToken)
+    {
+        try
+        {
+            if (HttpContext.Session is null
+                || string.IsNullOrEmpty(HttpContext.Session.GetString("RefreshToken")))
+            {
+                return Unauthorized();
+            }
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                refreshToken = HttpContext.Session.GetString("RefreshToken");
+            }
+
+            try
+            {
+                var newTokens = await accounts.Refresh(accessToken, refreshToken);
+                
+                HttpContext.Session.SetString("RefreshToken", newTokens.RefreshToken);
+                newTokens.RefreshToken = "Content omitted";
+
+                return Ok(newTokens);
+            } catch (Exception)
+            {
+                return Unauthorized();
+            }
         } catch (Exception ex)
         {
             return Problem(ex.Message);
