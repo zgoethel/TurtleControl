@@ -170,7 +170,15 @@
                     
                         <div class="d-flex flex-row" style="width: 100%;">
                             <div class="me-4" style="position: relative;">
-                                <img src="@Images.Turtle" width="42" />
+                                @switch (ev.CCType)
+                                {
+                                    case "Turtle":
+                                        <img src="@Images.Turtle" width="42" />
+                                        break;
+                                    default:
+                                        <img src="@Images.Computer" width="42" />
+                                        break;
+                                }
                                 <h4 class="mc-font site-fg-primary"
                                     style="position: absolute;right: -10px;bottom: -6px;">@ev.CCNum</h4>
                             </div>

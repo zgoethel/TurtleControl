@@ -100,14 +100,13 @@ builder.Services.AddSwaggerGen((config) =>
     config.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
-builder.Services.AddAuthorization();
 builder.Services.AddAuthentication((config) =>
 {
     config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer((config) =>
 {
-    var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
+    var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
     var skewSeconds = builder.Configuration.GetValue<int>("Jwt:SkewSeconds");
 
     config.TokenValidationParameters = new TokenValidationParameters
@@ -145,8 +144,8 @@ app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 app.MapRazorPages();
 app.MapControllers();
 app.UseSession();

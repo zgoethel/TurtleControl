@@ -41,17 +41,25 @@ public class ModelApiAdapter : AuthenticationStateProvider, IModelApiAdapter
         }
     }
 
+    private string token;
     // Set to avoid checking token expiry after discovering tokens are
     // soon to expire (allows refresh API call w/o infinite loop)
-    private bool IgnoreTokens = false;
+    private bool ignoreTokens = false;
 
     public async Task ExecuteAsync(string path, object args)
     {
-        if (!IgnoreTokens)
+        if (!ignoreTokens)
         {
             await GetAuthenticationStateAsync();
         }
 
+        if (string.IsNullOrEmpty(token))
+        {
+            http.DefaultRequestHeaders.Remove("Authorization");
+        } else
+        {
+            http.DefaultRequestHeaders.Authorization = new("Bearer", token);
+        }
         var result = await http.PostAsJsonAsync(path, args);
         if (!result.IsSuccessStatusCode)
         {
@@ -61,11 +69,18 @@ public class ModelApiAdapter : AuthenticationStateProvider, IModelApiAdapter
 
     public async Task<T> ExecuteAsync<T>(string path, object args)
     {
-        if (!IgnoreTokens)
+        if (!ignoreTokens)
         {
             await GetAuthenticationStateAsync();
         }
 
+        if (string.IsNullOrEmpty(token))
+        {
+            http.DefaultRequestHeaders.Remove("Authorization");
+        } else
+        {
+            http.DefaultRequestHeaders.Authorization = new("Bearer", token);
+        }
         var result = await http.PostAsJsonAsync(path, args);
         if (!result.IsSuccessStatusCode)
         {
@@ -97,7 +112,7 @@ public class ModelApiAdapter : AuthenticationStateProvider, IModelApiAdapter
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var token = await RetrieveSessionTokenAsync();
+        token = await RetrieveSessionTokenAsync();
         if (token is null)
         {
             goto unauthorized;
@@ -110,7 +125,7 @@ public class ModelApiAdapter : AuthenticationStateProvider, IModelApiAdapter
 
             if (DateTime.UtcNow.AddMinutes(30) > jwt.ValidTo)
             {
-                IgnoreTokens = true;
+                ignoreTokens = true;
                 try
                 {
                     var accounts = sp.GetRequiredService<Account.IService>();
@@ -120,7 +135,7 @@ public class ModelApiAdapter : AuthenticationStateProvider, IModelApiAdapter
                     jwt = handler.ReadJwtToken(refreshed.SessionToken);
                 } finally
                 {
-                    IgnoreTokens = false;
+                    ignoreTokens = false;
                 }
                 
             }

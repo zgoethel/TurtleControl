@@ -14,7 +14,7 @@ schema {
 		public int Lost { get; set; }
 		public int NetAmount { get; set; }
 		public DateTime? LastTree { get; set; }
-		public string? FavoriteExtra { get; set; }
+		public string FavoriteExtra { get; set; }
 	}
 
 	public class Dashboard
