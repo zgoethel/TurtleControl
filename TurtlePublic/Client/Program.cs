@@ -12,7 +12,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddSingleton((sp) => new HttpClient
 {
-    BaseAddress = new Uri(builder.HostEnvironment.BaseAddress.TrimEnd('/') + "/api/v1/")
+    BaseAddress = new Uri(builder.HostEnvironment.BaseAddress.TrimEnd('/') + "/api/v1/"),
+    
 });
 builder.Services.AddScoped<IModelApiAdapter, ModelApiAdapter>();
 builder.Services.AddScoped((sp) => sp.GetRequiredService<IModelApiAdapter>() as AuthenticationStateProvider);

@@ -72,8 +72,16 @@ public class AccountController : ControllerBase
         {
             var account = await accounts.AttemptLogin(email, password);
 
-            //TODO Move to actual cookie, remove sessions
-            HttpContext.Session.SetString("RefreshToken", account.RefreshToken);
+            Response.Cookies.Append("RefreshToken",
+                account.RefreshToken,
+                new()
+                {
+                    IsEssential = true,
+                    Secure = true,
+                    HttpOnly = true,
+                    Expires = DateTime.UtcNow.AddDays(1),
+                    MaxAge = TimeSpan.FromDays(1)
+                });
             account.RefreshToken = "Content omitted";
 
             return account is null
@@ -95,9 +103,9 @@ public class AccountController : ControllerBase
     {
         try
         {
-            if (HttpContext.Session is not null)
+            if (Request.Cookies.ContainsKey("RefreshToken"))
             {
-                HttpContext.Session.Clear();
+                Response.Cookies.Delete("RefreshToken");
             }
 
             await accounts.LogOut();
@@ -119,22 +127,29 @@ public class AccountController : ControllerBase
     {
         try
         {
-            if (HttpContext.Session is null
-                || string.IsNullOrEmpty(HttpContext.Session.GetString("RefreshToken")))
-            {
-                return Unauthorized();
-            }
             if (string.IsNullOrEmpty(refreshToken))
             {
-                refreshToken = HttpContext.Session.GetString("RefreshToken");
+                refreshToken = Request.Cookies.LastOrDefault((it) => it.Key == "RefreshToken").Value;
+                if (string.IsNullOrEmpty(refreshToken))
+                {
+                    return Unauthorized();
+                }
             }
 
             try
             {
                 var newTokens = await accounts.Refresh(accessToken, refreshToken);
 
-                //TODO Move to actual cookie, remove sessions
-                HttpContext.Session.SetString("RefreshToken", newTokens.RefreshToken);
+                Response.Cookies.Append("RefreshToken",
+                    newTokens.RefreshToken,
+                    new()
+                    {
+                        IsEssential = true,
+                        Secure = true,
+                        HttpOnly = true,
+                        Expires = DateTime.UtcNow.AddDays(1),
+                        MaxAge = TimeSpan.FromDays(1)
+                    });
                 newTokens.RefreshToken = "Content omitted";
 
                 return Ok(newTokens);

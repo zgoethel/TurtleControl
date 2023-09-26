@@ -26,29 +26,6 @@ builder.Services.Configure<ApiBehaviorOptions>((config) =>
 builder.Services.AddRazorPages();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddCookiePolicy((config) =>
-{
-    config.Secure = CookieSecurePolicy.Always;
-    config.MinimumSameSitePolicy = SameSiteMode.Strict;
-});
-builder.Services.ConfigureApplicationCookie((config) =>
-{
-    config.Cookie.Expiration = TimeSpan.FromDays(1);
-    config.ExpireTimeSpan = TimeSpan.FromDays(1);
-    config.SlidingExpiration = true;
-    config.Cookie.IsEssential = true;
-});
-builder.Services.AddDistributedSqlServerCache((config) =>
-{
-    config.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    config.SchemaName = "dbo";
-    config.TableName = "DistributedCache";
-});
-builder.Services.AddSession((config) =>
-{
-    config.IdleTimeout = TimeSpan.FromDays(1);
-});
-
 builder.Services.AddApiVersioning((config) =>
 {
     config.ReportApiVersions = true;
@@ -155,7 +132,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapRazorPages();
 app.MapControllers();
-app.UseSession();
 //app.MapFallbackToFile("index.html");
 app.MapFallbackToPage("/_Host");
 

@@ -74,8 +74,8 @@ public class AccountService : Account.IBackendService
             return null;
         }
 
-        //TODO
         /*
+        TODO
         if (DateTime.Today - account.PasswordSet > TimeSpan.FromDays(...))
         {
             throw new Exception(EXPIRED_PASSWORD);
