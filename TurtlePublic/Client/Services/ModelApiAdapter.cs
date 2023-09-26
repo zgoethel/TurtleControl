@@ -137,7 +137,6 @@ public class ModelApiAdapter : AuthenticationStateProvider, IModelApiAdapter
                 {
                     ignoreTokens = false;
                 }
-                
             }
 
             var identity = new ClaimsIdentity(jwt.Claims, "LoggedIn");

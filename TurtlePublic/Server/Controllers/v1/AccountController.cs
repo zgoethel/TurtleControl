@@ -10,9 +10,11 @@ namespace TurtlePublic.Controllers.v1;
 public class AccountController : ControllerBase
 {
     private readonly Account.IService accounts;
-    public AccountController(Account.IService accounts)
+    private readonly IConfiguration config;
+    public AccountController(Account.IService accounts, IConfiguration config)
     {
         this.accounts = accounts;
+        this.config = config;
     }
 
     /*
@@ -71,7 +73,12 @@ public class AccountController : ControllerBase
         try
         {
             var account = await accounts.AttemptLogin(email, password);
+            if (account is null)
+            {
+                return Unauthorized();
+            }
 
+            var lifespan = config.GetValue<int>("Jwt:RefreshSeconds");
             Response.Cookies.Append("RefreshToken",
                 account.RefreshToken,
                 new()
@@ -79,14 +86,12 @@ public class AccountController : ControllerBase
                     IsEssential = true,
                     Secure = true,
                     HttpOnly = true,
-                    Expires = DateTime.UtcNow.AddDays(1),
-                    MaxAge = TimeSpan.FromDays(1)
+                    Expires = DateTime.UtcNow.AddSeconds(lifespan),
+                    MaxAge = TimeSpan.FromSeconds(lifespan)
                 });
             account.RefreshToken = "Content omitted";
 
-            return account is null
-                ? Unauthorized()
-                : Ok(account);
+            return Ok(account);
         } catch (Exception ex)
         {
             return Problem(ex.Message);
@@ -139,7 +144,13 @@ public class AccountController : ControllerBase
             try
             {
                 var newTokens = await accounts.Refresh(accessToken, refreshToken);
+                if (newTokens is null)
+                {
+                    // Propagates as "Unauthorized"
+                    throw new ApplicationException("New tokens are blank");
+                }
 
+                var lifespan = config.GetValue<int>("Jwt:RefreshSeconds");
                 Response.Cookies.Append("RefreshToken",
                     newTokens.RefreshToken,
                     new()
@@ -147,8 +158,8 @@ public class AccountController : ControllerBase
                         IsEssential = true,
                         Secure = true,
                         HttpOnly = true,
-                        Expires = DateTime.UtcNow.AddDays(1),
-                        MaxAge = TimeSpan.FromDays(1)
+                        Expires = DateTime.UtcNow.AddSeconds(lifespan),
+                        MaxAge = TimeSpan.FromSeconds(lifespan)
                     });
                 newTokens.RefreshToken = "Content omitted";
 

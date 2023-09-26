@@ -12,6 +12,7 @@ builder.Services.AddScoped<IModelDbAdapter, ModelDbAdapter>();
 builder.Services.AddScoped<IModelDbWrapper, ModelDbWrapper>();
 builder.Services.AddScoped<ILinkPathGenerator, LinkPathGenerator>();
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
+builder.Services.AddSingleton<SshClientService>();
 builder.Services.AddTurtlePublicBackend();
 
 builder.Services.AddControllersWithViews((config) =>
