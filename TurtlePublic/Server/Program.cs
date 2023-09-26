@@ -36,6 +36,13 @@ builder.Services.ConfigureApplicationCookie((config) =>
     config.Cookie.Expiration = TimeSpan.FromDays(1);
     config.ExpireTimeSpan = TimeSpan.FromDays(1);
     config.SlidingExpiration = true;
+    config.Cookie.IsEssential = true;
+});
+builder.Services.AddDistributedSqlServerCache((config) =>
+{
+    config.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    config.SchemaName = "dbo";
+    config.TableName = "DistributedCache";
 });
 builder.Services.AddSession((config) =>
 {

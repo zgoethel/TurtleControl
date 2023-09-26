@@ -72,6 +72,7 @@ public class AccountController : ControllerBase
         {
             var account = await accounts.AttemptLogin(email, password);
 
+            //TODO Move to actual cookie, remove sessions
             HttpContext.Session.SetString("RefreshToken", account.RefreshToken);
             account.RefreshToken = "Content omitted";
 
@@ -131,7 +132,8 @@ public class AccountController : ControllerBase
             try
             {
                 var newTokens = await accounts.Refresh(accessToken, refreshToken);
-                
+
+                //TODO Move to actual cookie, remove sessions
                 HttpContext.Session.SetString("RefreshToken", newTokens.RefreshToken);
                 newTokens.RefreshToken = "Content omitted";
 
