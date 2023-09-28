@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace TurtlePublic.Controllers.v1;
 
 [ApiController]
+[Authorize]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1")]
 public class AccountController : ControllerBase
@@ -56,8 +57,8 @@ public class AccountController : ControllerBase
     */
 
     /// <summary>
-    /// Validates user credentials, creating a session on success and a producing
-    /// an error code on failure.
+    /// Validates user credentials, storing any resulting refresh token in a
+    /// cookie, else producing a "401 Unauthorized."
     /// </summary>
     /// <param name="email">Unique account email address.</param>
     /// <param name="password">Plaintext password entered during login.</param>
@@ -86,8 +87,7 @@ public class AccountController : ControllerBase
                     IsEssential = true,
                     Secure = true,
                     HttpOnly = true,
-                    Expires = DateTime.UtcNow.AddSeconds(lifespan),
-                    MaxAge = TimeSpan.FromSeconds(lifespan)
+                    Expires = DateTime.UtcNow.AddSeconds(lifespan)
                 });
             account.RefreshToken = "Content omitted";
 
@@ -99,7 +99,8 @@ public class AccountController : ControllerBase
     }
 
     /// <summary>
-    /// Destroys any existing session data containing refresh tokens for the user.
+    /// Nullifies the session by destroying any refresh token cookie; discard
+    /// the access token.
     /// </summary>
     [HttpPost("LogOut")]
     [AllowAnonymous]
@@ -122,11 +123,13 @@ public class AccountController : ControllerBase
     }
 
     /// <summary>
-    /// Creates a new set of access and refresh tokens, storing the refresh again in session.
+    /// Creates a new set of access and refresh tokens, also updating the refresh
+    /// cookie expiration.
     /// </summary>
     [HttpPost("Refresh")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Produces(typeof(Account.WithSession))]
     public async Task<IActionResult> Refresh(string accessToken, string refreshToken)
     {
@@ -158,8 +161,7 @@ public class AccountController : ControllerBase
                         IsEssential = true,
                         Secure = true,
                         HttpOnly = true,
-                        Expires = DateTime.UtcNow.AddSeconds(lifespan),
-                        MaxAge = TimeSpan.FromSeconds(lifespan)
+                        Expires = DateTime.UtcNow.AddSeconds(lifespan)
                     });
                 newTokens.RefreshToken = "Content omitted";
 
@@ -198,8 +200,8 @@ public class AccountController : ControllerBase
     */
 
     /// <summary>
-    /// Issues a password reset token and emails the user a link (failures are
-    /// silently ignored).
+    /// Issues a password reset token and emails the user a link; failures and
+    /// non-existent accounts are ignored for obfuscation.
     /// </summary>
     /// <param name="email">Email entered by user for reset.</param>
     [HttpPost("BeginReset")]
@@ -244,7 +246,8 @@ public class AccountController : ControllerBase
     }
 
     /// <summary>
-    /// Sets a new password in the database for a pending password reset.
+    /// Sets a new password in the database for a pending password reset; removes
+    /// any stored token from the account.
     /// </summary>
     /// <param name="resetToken">Hex-encoded key bytes for the reset token.</param>
     /// <param name="password">Plaintext password to assign to the account.</param>

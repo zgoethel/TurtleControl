@@ -2,6 +2,7 @@ using Generated;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
 using TurtlePublic.Extensions;
@@ -12,7 +13,7 @@ builder.Services.AddScoped<IModelDbAdapter, ModelDbAdapter>();
 builder.Services.AddScoped<IModelDbWrapper, ModelDbWrapper>();
 builder.Services.AddScoped<ILinkPathGenerator, LinkPathGenerator>();
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
-builder.Services.AddSingleton<SshClientService>();
+builder.Services.AddSingleton<ISshClientService, SshClientService>();
 builder.Services.AddTurtlePublicBackend();
 
 builder.Services.AddControllersWithViews((config) =>
@@ -67,6 +68,28 @@ builder.Services.AddSwaggerGen((config) =>
             Url = "https://apps.jibini.net/TurtlePublic"
         });
     }
+
+    config.AddSecurityDefinition("Bearer", new()
+    {
+        In = ParameterLocation.Header,
+        Description = "Access token (refresh token is in cookie)",
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+    config.AddSecurityRequirement(new()
+    {
+        {
+            new()
+            {
+                Reference = new()
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 
     config.SwaggerDoc("v1",
         new()

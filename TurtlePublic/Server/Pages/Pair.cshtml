@@ -1,0 +1,17 @@
+﻿@page "/p/{Tag}"
+@using Generated
+@inject Turtle.IService turtles
+@{
+    var message = "Are you sure you're a turtle?";
+    if (Request.RouteValues.TryGetValue("Tag", out var tag))
+    {
+        try
+        {
+            message = await turtles.GeneratePair(tag.ToString());
+        } catch (Exception ex)
+        {
+            message = ex.Message;
+        }
+    }
+}
+@Html.Raw(message)

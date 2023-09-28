@@ -3,7 +3,7 @@ using ConnectionInfo = Renci.SshNet.ConnectionInfo;
 
 namespace TurtlePublic.Services;
 
-public class SshClientService
+public class SshClientService : ISshClientService
 {
     private readonly IConfiguration config;
     public SshClientService(IConfiguration config)
@@ -43,6 +43,14 @@ public class SshClientService
     {
         using var client = CreateClient();
         using var cmd = client.CreateCommand($"ls {flags} '{path}'");
+        var output = cmd.Execute();
+        return output.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+    }
+
+    public string[] FindFile(string dir, string name)
+    {
+        using var client = CreateClient();
+        using var cmd = client.CreateCommand($"find '{dir}' -type f -name '{name}'");
         var output = cmd.Execute();
         return output.Split("\n", StringSplitOptions.RemoveEmptyEntries);
     }

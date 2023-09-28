@@ -1,0 +1,33 @@
+﻿schema {
+	int Id,
+	string CCType = {""},
+	int CCNum,
+	int? CohortId,
+	string RootPath = {""},
+	int? OwnerId
+}
+
+repo {
+	Turtle_List()
+		=> json List<Turtle>,
+
+	Turtle_GetById(int id)
+		=> Turtle,
+
+	Turtle_Register(string CCType, int CCNum)
+		=> Turtle,
+
+	Turtle_Set(int Id, int? CohortId)
+		=> Turtle
+}
+
+service {
+	BeginPairing(int _userId)
+		=> string,
+
+	CheckPairing(string checkTag, int _userId)
+		=> Turtle,
+
+	GeneratePair(string checkTagSuffix)
+		=> string
+}
