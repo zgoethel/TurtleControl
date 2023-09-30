@@ -1,6 +1,7 @@
 using Generated;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace TurtlePublic.Controllers.v1;
 
@@ -69,7 +70,7 @@ public class AccountController : ControllerBase
     [Produces(typeof(Account.WithSession))]
     public async Task<IActionResult> AttemptLogin(
         string email,
-        string password)
+        [DataType(DataType.Password)] string password)
     {
         try
         {

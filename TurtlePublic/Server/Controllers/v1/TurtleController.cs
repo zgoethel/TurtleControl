@@ -17,6 +17,23 @@ public class TurtleController : ControllerBase
         this.turtles = turtles;
     }
 
+    [HttpPost("List")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Produces(typeof(List<Turtle>))]
+    public async Task<IActionResult> List(int page, int count, bool allUsers)
+    {
+        try
+        {
+            var _userId = this.LoggedIn();
+            var list = await turtles.List(page, count, allUsers, _userId);
+            return Ok(list);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
     [HttpPost("BeginPairing")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]

@@ -8,20 +8,26 @@
 }
 
 repo {
-	Turtle_List()
-		=> json List<Turtle>,
+	Turtle_List(int page, int count, int _userId)
+		=> List<Turtle>,
 
 	Turtle_GetById(int id)
 		=> Turtle,
 
-	Turtle_Register(string CCType, int CCNum)
+	Turtle_Register(string ccType, int ccNum, string rootPath, int _userId)
 		=> Turtle,
 
-	Turtle_Set(int Id, int? CohortId)
+	Turtle_Set(int id, int? cohortId)
 		=> Turtle
 }
 
 service {
+	Get(int id)
+		=> Turtle,
+
+	List(int page, int count, bool allUsers, int _userId)
+		=> List<Turtle>,
+
 	BeginPairing(int _userId)
 		=> string,
 

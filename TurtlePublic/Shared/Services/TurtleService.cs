@@ -22,6 +22,16 @@ public class TurtleService : Turtle.IBackendService
 
     private static IDictionary<string, int> turtleOwners = new ConcurrentDictionary<string, int>();
 
+    public async Task<Turtle> Get(int id)
+    {
+        return await repository.Turtle_GetById(id);
+    }
+
+    public async Task<List<Turtle>> List(int page, int count, bool allUsers, int _userId)
+    {
+        return await repository.Turtle_List(page, count, allUsers ? 0 : _userId);
+    }
+
     public Task<string> BeginPairing(int _userId)
     {
         var randomness = Guid.NewGuid().ToString();
@@ -33,9 +43,9 @@ public class TurtleService : Turtle.IBackendService
         return Task.FromResult(checkTag);
     }
 
-    public Task<Turtle> CheckPairing(string checkTag, int _userId)
+    public async Task<Turtle> CheckPairing(string checkTag, int _userId)
     {
-        if (!turtleOwners.Remove(checkTag, out var owner))
+        if (!turtleOwners.TryGetValue(checkTag, out var owner))
         {
             throw new ApplicationException(InvalidCheckTag);
         }
@@ -57,25 +67,42 @@ public class TurtleService : Turtle.IBackendService
             case 0:
                 throw new ApplicationException("Waiting for file to appear");
             case 1:
+                turtleOwners.Remove(checkTag);
                 break;
             default:
                 throw new ApplicationException("Duplicate files detected; manual cleanup required");
         }
+        var path = results.Single()
+            .Substring(linkGenerator.CcRoot.Length)
+            .Trim('/');
 
-        return Task.FromResult(new Turtle()
+        var pieces = path.Split('/');
+        if (pieces.Length < 3)
         {
-            RootPath = results.Single(),
-            OwnerId = owner
-        });
+            throw new Exception("Discovered CC path is too short to be correct");
+        }
+        var ccType = pieces[0].ToLower() switch
+        {
+            "computer" => "Computer",
+            "turtle" => "Turtle",
+            _ => throw new Exception($"Device folder type '{pieces[0]}' not currently supported")
+        };
+        if (!int.TryParse(pieces[1], out var ccNum))
+        {
+            throw new Exception("Did not find CC identifier int in path");
+        }
+
+        var newTurtle = await repository.Turtle_Register(ccType, ccNum, path, _userId);
+        return newTurtle;
     }
 
     public async Task<string> GeneratePair(string checkTagSuffix)
     {
         var checkTag = linkGenerator.GenerateActionPath("p", checkTagSuffix);
-        if (turtleOwners./*Remove*/TryGetValue(checkTag, out var owner))
+        if (turtleOwners.TryGetValue(checkTag, out var owner))
         {
             var account = await accounts.Get(owner);
-            return $"You wouldn't download a turtle, would you {account.FirstName}?\nThis device is paired with your account.";
+            return $"You wouldn't download a turtle, would you {account.FirstName}?\nThis ComputerCraft device should be discovered soon.";
         } else
         {
             throw new ApplicationException(InvalidCheckTag);

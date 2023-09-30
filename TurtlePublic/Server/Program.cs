@@ -65,7 +65,7 @@ builder.Services.AddSwaggerGen((config) =>
         config.AddServer(new()
         {
             Description = "Production",
-            Url = "https://apps.jibini.net/TurtlePublic"
+            Url = "https://t.jibini.net"
         });
     }
 
@@ -148,7 +148,7 @@ if (app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 app.UseRouting();
