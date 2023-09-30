@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [dbo].[EventMaterial] (
-    [EventId]      INT          NOT NULL,
+    [EventId]      BIGINT          NOT NULL,
     [Material]     VARCHAR (50) NOT NULL,
     [NetAmount]    INT          CONSTRAINT [DF_EventMaterial_NetAmount] DEFAULT ((0)) NOT NULL,
     [Transactions] INT          CONSTRAINT [DF_EventMaterial_Transactions] DEFAULT ((0)) NOT NULL,

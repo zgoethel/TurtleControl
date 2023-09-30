@@ -1,10 +1,18 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager navMan
 
-<div class="d-flex flex-row p-2" style="width: 100%;">
-
-    <a class="mx-2" href="api/docs">API Docs</a>
-    <a class="mx-2" href="admin">Manage</a>
+<div class="d-flex flex-column flex-md-row p-2" style="width: 100%;">
+    
+    <a class="ms-2" href="">Home</a>
+    <a class="ms-2" href="api/docs">Docs</a>
+    
+    <AuthorizeView>
+        <Authorized>
+            <a class="mx-2" href="admin">Admin</a>
+        </Authorized>
+        <NotAuthorized>
+        </NotAuthorized>
+    </AuthorizeView>
 
     <AuthorizeView>
         <Authorized>

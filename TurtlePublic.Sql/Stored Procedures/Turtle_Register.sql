@@ -12,7 +12,8 @@ BEGIN
     IF EXISTS (
         SELECT TOP (1) * FROM Turtle WHERE CCNum = @ccNum)
     BEGIN
-        RAISERROR('ComputerCraft identifier is already registered', 18, 1)
+        RAISERROR('Error: ComputerCraft identifier is already registered', 18, 1)
+        RETURN
     END
 
     INSERT INTO Turtle (

@@ -7,12 +7,28 @@
 	int? OwnerId
 }
 
+partial WithOwner {
+	string OwnerName = {""},
+	DateTime? LastEvent
+}
+
+partial WithDetails {
+	string OwnerName = {""}
+}
+
+{
+	public class CheckTagLink
+	{
+		public string Link { get; set; } = "";
+	}
+}
+
 repo {
 	Turtle_List(int page, int count, int _userId)
-		=> List<Turtle>,
+		=> List<Turtle.WithOwner>,
 
 	Turtle_GetById(int id)
-		=> Turtle,
+		=> Turtle.WithDetails,
 
 	Turtle_Register(string ccType, int ccNum, string rootPath, int _userId)
 		=> Turtle,
@@ -23,13 +39,13 @@ repo {
 
 service {
 	Get(int id)
-		=> Turtle,
+		=> Turtle.WithDetails,
 
 	List(int page, int count, bool allUsers, int _userId)
-		=> List<Turtle>,
+		=> List<Turtle.WithOwner>,
 
 	BeginPairing(int _userId)
-		=> string,
+		=> CheckTagLink,
 
 	CheckPairing(string checkTag, int _userId)
 		=> Turtle,

@@ -10,6 +10,7 @@ AS
         SELECT TOP (1) * FROM Account WHERE Email = @email)
     BEGIN
         RAISERROR('Email address is already in use', 18, 1)
+        RETURN 0
     END
 
     INSERT INTO Account (

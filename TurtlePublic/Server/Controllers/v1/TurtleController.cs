@@ -20,7 +20,7 @@ public class TurtleController : ControllerBase
     [HttpPost("List")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [Produces(typeof(List<Turtle>))]
+    [Produces(typeof(List<Turtle.WithOwner>))]
     public async Task<IActionResult> List(int page, int count, bool allUsers)
     {
         try

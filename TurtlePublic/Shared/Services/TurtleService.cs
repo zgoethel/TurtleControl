@@ -22,17 +22,17 @@ public class TurtleService : Turtle.IBackendService
 
     private static IDictionary<string, int> turtleOwners = new ConcurrentDictionary<string, int>();
 
-    public async Task<Turtle> Get(int id)
+    public async Task<Turtle.WithDetails> Get(int id)
     {
         return await repository.Turtle_GetById(id);
     }
 
-    public async Task<List<Turtle>> List(int page, int count, bool allUsers, int _userId)
+    public async Task<List<Turtle.WithOwner>> List(int page, int count, bool allUsers, int _userId)
     {
         return await repository.Turtle_List(page, count, allUsers ? 0 : _userId);
     }
 
-    public Task<string> BeginPairing(int _userId)
+    public Task<Turtle.CheckTagLink> BeginPairing(int _userId)
     {
         var randomness = Guid.NewGuid().ToString();
         var checkTagSuffix = randomness.Split("-")[0];
@@ -40,7 +40,10 @@ public class TurtleService : Turtle.IBackendService
 
         turtleOwners[checkTag] = _userId;
 
-        return Task.FromResult(checkTag);
+        return Task.FromResult(new Turtle.CheckTagLink()
+        {
+            Link = checkTag
+        });
     }
 
     public async Task<Turtle> CheckPairing(string checkTag, int _userId)
@@ -81,6 +84,7 @@ public class TurtleService : Turtle.IBackendService
         {
             throw new Exception("Discovered CC path is too short to be correct");
         }
+        //TODO Set to unknown, capture in "firmware"
         var ccType = pieces[0].ToLower() switch
         {
             "computer" => "Computer",
@@ -91,6 +95,7 @@ public class TurtleService : Turtle.IBackendService
         {
             throw new Exception("Did not find CC identifier int in path");
         }
+        path = $"{pieces[0]}/{pieces[1]}";
 
         var newTurtle = await repository.Turtle_Register(ccType, ccNum, path, _userId);
         return newTurtle;
