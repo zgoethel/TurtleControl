@@ -7,6 +7,7 @@
     [RootPath] VARCHAR(200) NOT NULL, 
     [OwnerId] INT NOT NULL, 
     [Paired] DATETIME NOT NULL DEFAULT GETDATE(), 
+    [IsPublic] BIT NOT NULL DEFAULT 0, 
     CONSTRAINT [AK_Turtle_CCNum] UNIQUE ([CCNum]) 
 )
 

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="b05f29e7-1d16-4dde-8354-54e99190c329" ChangeDateTime="09/30/2023 20:42:28">
+    <Property Name="ElementName" Value="[dbo].[Turtle].[IsShared]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Turtle]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="IsPublic" />
+  </Operation>
+</Operations>

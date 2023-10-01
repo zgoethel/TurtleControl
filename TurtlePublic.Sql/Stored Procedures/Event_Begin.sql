@@ -6,6 +6,10 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+    UPDATE Turtle
+    SET CCType = @CCType
+    WHERE CCNum = @CCNum
+
     INSERT INTO Event (
 		Type,
 		CCType,

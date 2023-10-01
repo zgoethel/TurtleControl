@@ -1,7 +1,43 @@
 ﻿@page "/admin"
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @attribute [Authorize]
 @inject Turtle.IService turtles
+
+<PageTitle>Manage Devices</PageTitle>
+
+@code {
+    private RenderFragment LoadingModal =>
+@<div class="m-auto card p-3">
+
+    <p class="p-2 border border-dark rounded" hidden="@IsError">
+        Run
+        <br />
+        <c style="max-width: 100%;overflow-x: auto;display: block;white-space: nowrap;">
+            wget @checkTag
+        </c>
+        on your ComputerCraft device.
+    </p>
+
+    <center>
+        <div class="d-flex flex-column">
+            <h2 hidden="@IsError">Searching</h2>
+            <p hidden="@IsError" class="mt-2"><i class="spinner-border" /></p>
+            @if (!string.IsNullOrEmpty(status))
+                {
+                    <p><c>@status</c></p>
+                }
+
+                @*TODO*@
+                <button class="btn btn-secondary"
+                @onclick="@(() => checkTag = status = "")">
+            Cancel
+        </button>
+    </div>
+</center>
+
+</div>;
+}
 
 <div class="p-3">
 
@@ -26,35 +62,7 @@
                 <div class="d-flex"
                     style="position: fixed;left: 0;top: 0;width: 100%;height: 100vh;background: #000000c0;z-index: 1000;">
                     
-                    <div class="m-auto card p-3">
-
-                        <p class="p-2 border border-dark rounded" hidden="@IsError">
-                            Run
-                            <br />
-                            <c style="max-width: 100%;overflow-x: auto;display: block;white-space: nowrap;">
-                                wget @checkTag
-                            </c>
-                            on your ComputerCraft device.
-                        </p>
-
-                        <center>
-                            <div class="d-flex flex-column">
-                                <h2 hidden="@IsError">Searching</h2>
-                                <p hidden="@IsError" class="mt-2"><i class="spinner-border" /></p>
-                                @if (!string.IsNullOrEmpty(status))
-                                {
-                                    <p><c>@status</c></p>
-                                }
-
-                                @*TODO*@
-                                <button class="btn btn-secondary"
-                                    @onclick="@(() => checkTag = status = "")">
-                                    Cancel
-                                </button>
-                            </div>
-                        </center>
-
-                    </div>
+                    @LoadingModal
 
                 </div>
             }
@@ -62,39 +70,121 @@
         </div>
     </div>
 
-    <div class="row mx-auto" style="width: 100%;">
-        @foreach (var t in allTurtles)
-        {
-            <div class="col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2 my-3">
-                <center>
-                    @switch (t.CCType.ToLower())
-                    {
-                        case "turtle":
-                            <img src="@Images.Turtle" width="80" />
-                            break;
-                        default:
-                            <img src="@Images.Computer" width="80" />
-                            break;
-                    }
-                    <h5 class="mt-2 mb-1">@t.CCType</h5>
-                    <h1 class="mc-font">@t.CCNum</h1>
-                    <span class="card mc-font" style="word-break: break-all;">
-                        'world/computercraft/@t.RootPath'
-                        <br />
-                        Owned by @t.OwnerName
-                        @if (t.LastEvent.HasValue)
-                        {
-                            <text>
-                                <br />Most Recent Event:
-                                <br />@t.LastEvent.Value.ToShortDateString()
-                                <br />@t.LastEvent.Value.ToShortTimeString()
-                            </text>
-                        }
-                    </span>
-                    
-                </center>
-            </div>
+@code {
+    private RenderFragment Turtle(Turtle.WithOwner t, int _userId)
+    {
+        return 
+@<div class="col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2 my-3">
+    <center>
+    
+        @{
+            var isOwner = _userId == t.OwnerId;
+            var toolTip = isOwner
+                ? "You are not sharing this device"
+                : $"Only {t.OwnerName} can make changes";
+            if (t.IsPublic)
+            {
+                toolTip = "Any logged in user can make changes";
+            }
+            var canEdit = isOwner || t.IsPublic;
         }
+
+        <a href="@(canEdit ? $"turtle/{t.Id}" : null)"
+            class="text-white"
+            style="@(canEdit ? "" : "cursor: not-allowed;opacity: 0.6;")text-decoration: none;">
+
+            @switch (t.CCType.ToLower())
+            {
+                case "unknown":
+                    <img src="@Images.Computer" width="80" style="filter: invert();" />
+                    break;
+                case "turtle":
+                    <img src="@Images.Turtle" width="80" />
+                    break;
+                default:
+                    <img src="@Images.Computer" width="80" />
+                    break;
+            }
+
+            <h5 class="mt-2 mb-0">@t.CCType</h5>
+            <h1 class="mc-font">@t.CCNum</h1>
+
+            <div class="card mc-font p-2 d-flex" style="word-break: break-all;">
+
+                <div class="d-flex mx-auto" title="@toolTip" style="width: fit-content;">
+                    @if (isOwner)
+                    {
+                        <i class="oi oi-key my-auto pb-1"
+                            style="font-size: 0.8rem;transform: translate(4px, 4px) rotate(315deg) scale(-1, 1);"
+                            hidden="@t.IsPublic" />
+                    }
+                    <i class="oi oi-lock-@(isOwner ? "un" : "")locked pb-1 me-2 my-auto"
+                        hidden="@t.IsPublic" />
+
+                    <i class="oi oi-globe me-2 my-auto pb-1"
+                        hidden="@(!t.IsPublic)"/>
+
+                    @if (isOwner)
+                    {
+                        @if (t.IsPublic)
+                        {
+                            <button class="btn btn-outline-success"
+                                @onclick="@(async () => await UnshareAsync(t.Id))"
+                                @onclick:preventDefault
+                                @onclick:stopPropagation>
+                                Unshare
+                            </button>
+                        } else
+                        {
+                            <button class="btn btn-success"
+                                @onclick="@(async () => await ShareAsync(t.Id))"
+                                @onclick:preventDefault
+                                @onclick:stopPropagation>
+                                Share
+                            </button>
+                        }
+                    } else
+                    {
+                        <span class="my-auto">@t.OwnerName</span>
+                    }
+                </div>
+
+                @if (t.LastEvent.HasValue)
+                {
+                    <span class="bg-white rounded border border-info mt-2">
+                        <span class="badge bg-info d-block mx-auto shadow"
+                            style="margin-top: -2px;">
+                            @t.LastEventType
+                        </span>
+                        <i style="font-size: 0.75rem;">
+                            @@
+                            @t.LastEvent?.ToShortDateString()
+                            @t.LastEvent?.ToShortTimeString()
+                        </i>
+                    </span>
+                }
+
+            </div>
+
+        </a>
+
+    </center>
+</div>;
+    }
+}
+
+    <div class="row mx-auto" style="width: 100%;">
+        <AuthorizeView>
+            <Authorized Context="authContext">
+                @{
+                    var _userId = int.Parse(authContext.User.Claims.First((it) => it.Type == "Id").Value);
+                    foreach (var t in allTurtles)
+                    {
+                        @Turtle(t, _userId)
+                    }
+                }
+            </Authorized>
+        </AuthorizeView>
     </div>
 
 </div>
@@ -113,13 +203,18 @@
         await ReloadTurtlesAsync();
     }
 
-    private async Task ReloadTurtlesAsync()
+    private async Task ReloadTurtlesAsync(bool clear)
     {
-        allTurtles.Clear();
-        await InvokeAsync(StateHasChanged);
-
+        if (clear)
+        {
+            allTurtles.Clear();
+            await InvokeAsync(StateHasChanged);
+        }
         allTurtles = await turtles.List(0, 20, allUsers, 0);
     }
+
+    private async Task ReloadTurtlesAsync()
+        => await ReloadTurtlesAsync(true);
 
     private async Task BeginPairingAsync()
     {
@@ -142,5 +237,17 @@
             }
             await InvokeAsync(StateHasChanged);
         }
+    }
+
+    private async Task ShareAsync(int id)
+    {
+        await turtles.Share(id, 0);
+        await ReloadTurtlesAsync(clear: false);
+    }
+
+    private async Task UnshareAsync(int id)
+    {
+        await turtles.Unshare(id, 0);
+        await ReloadTurtlesAsync(clear: false);
     }
 }

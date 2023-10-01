@@ -16,13 +16,18 @@ BEGIN
         RETURN
     END
 
+    DECLARE @knownType VARCHAR(50) = (
+        SELECT TOP (1) e.CCType FROM Event e
+        WHERE e.CCNum = @ccNum
+        ORDER BY e.Id DESC);
+
     INSERT INTO Turtle (
         CCType,
         CCNum,
         RootPath,
         OwnerId)
     VALUES (
-        @ccType,
+        ISNULL(@knownType, @ccType),
         @ccNum,
         @rootPath,
         @_userId);

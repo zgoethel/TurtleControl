@@ -68,5 +68,9 @@
     <Build Include="Stored Procedures\*.sql" />
     <Build Include="Tables\*.sql" />
     <Build Include="Views\*.sql" />
+    <Build Include="Stored Procedures\Turtle_SetIsPublic.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="TurtleControl.Sql.refactorlog" />
   </ItemGroup>
 </Project>

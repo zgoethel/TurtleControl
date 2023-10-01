@@ -12,11 +12,16 @@ AS
         OwnerId,
         Paired,
         TRIM(a.FirstName + ' ' + a.LastName) 'OwnerName',
-        le.Timestamp 'LastEvent'
+        le.LastUpdated 'LastEvent',
+        le.Type 'LastEventType',
+        IsPublic
     FROM Turtle t
     INNER JOIN Account a on a.Id = t.OwnerId
     OUTER APPLY (
-        SELECT TOP (1) e.Timestamp FROM Event e
+        SELECT TOP (1)
+            e.LastUpdated,
+            e.Type
+        FROM EventNetMaterial e
         WHERE e.CCNum = t.CCNum
         ORDER BY e.Id DESC) le
     WHERE @_userId = 0 OR OwnerId = @_userId

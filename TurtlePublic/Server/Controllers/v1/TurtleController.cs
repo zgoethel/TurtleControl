@@ -67,4 +67,55 @@ public class TurtleController : ControllerBase
             return Problem(ex.Message);
         }
     }
+
+    [HttpPost("Set")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Produces(typeof(Turtle))]
+    public async Task<IActionResult> Set(int id, int? cohortId)
+    {
+        try
+        {
+            var _userId = this.LoggedIn();
+            var turtle = await turtles.Set(id, cohortId, _userId);
+            return Ok(turtle);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
+    [HttpPost("Share")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Produces(typeof(Turtle))]
+    public async Task<IActionResult> Share(int id)
+    {
+        try
+        {
+            var _userId = this.LoggedIn();
+            var turtle = await turtles.Share(id, _userId);
+            return Ok(turtle);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
+    [HttpPost("Unshare")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Produces(typeof(Turtle))]
+    public async Task<IActionResult> Unshare(int id)
+    {
+        try
+        {
+            var _userId = this.LoggedIn();
+            var turtle = await turtles.Unshare(id, _userId);
+            return Ok(turtle);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
 }

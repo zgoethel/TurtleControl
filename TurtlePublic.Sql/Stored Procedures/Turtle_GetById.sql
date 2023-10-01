@@ -9,7 +9,8 @@ AS
         RootPath,
         OwnerId,
         Paired,
-        TRIM(a.FirstName + ' ' + a.LastName) 'OwnerName'
+        TRIM(a.FirstName + ' ' + a.LastName) 'OwnerName',
+        IsPublic
     FROM Turtle t
     INNER JOIN Account a ON a.Id = t.OwnerId
     WHERE t.Id = @id

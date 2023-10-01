@@ -4,12 +4,14 @@
 	int CCNum,
 	int? CohortId,
 	string RootPath = {""},
-	int? OwnerId
+	int? OwnerId,
+	bool IsPublic
 }
 
 partial WithOwner {
 	string OwnerName = {""},
-	DateTime? LastEvent
+	DateTime? LastEvent,
+	string LastEventType
 }
 
 partial WithDetails {
@@ -34,6 +36,9 @@ repo {
 		=> Turtle,
 
 	Turtle_Set(int id, int? cohortId)
+		=> Turtle,
+
+	Turtle_SetIsPublic(int id, bool isPublic)
 		=> Turtle
 }
 
@@ -51,5 +56,14 @@ service {
 		=> Turtle,
 
 	GeneratePair(string checkTagSuffix)
-		=> string
+		=> string,
+
+	Set(int id, int? cohortId, int _userId)
+		=> Turtle,
+
+	Share(int id, int _userId)
+		=> Turtle,
+
+	Unshare(int id, int _userId)
+		=> Turtle
 }

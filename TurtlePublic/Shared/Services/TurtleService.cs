@@ -73,7 +73,8 @@ public class TurtleService : Turtle.IBackendService
                 turtleOwners.Remove(checkTag);
                 break;
             default:
-                throw new ApplicationException("Duplicate files detected; manual cleanup required");
+                turtleOwners.Remove(checkTag);
+                throw new ApplicationException("Error: Duplicate files detected; manual cleanup required");
         }
         var path = results.Single()
             .Substring(linkGenerator.CcRoot.Length)
@@ -82,22 +83,15 @@ public class TurtleService : Turtle.IBackendService
         var pieces = path.Split('/');
         if (pieces.Length < 3)
         {
-            throw new Exception("Discovered CC path is too short to be correct");
+            throw new Exception("Error: Discovered CC path is too short to be correct");
         }
-        //TODO Set to unknown, capture in "firmware"
-        var ccType = pieces[0].ToLower() switch
-        {
-            "computer" => "Computer",
-            "turtle" => "Turtle",
-            _ => throw new Exception($"Device folder type '{pieces[0]}' not currently supported")
-        };
         if (!int.TryParse(pieces[1], out var ccNum))
         {
-            throw new Exception("Did not find CC identifier int in path");
+            throw new Exception("Error: Did not find CC identifier int in path");
         }
         path = $"{pieces[0]}/{pieces[1]}";
 
-        var newTurtle = await repository.Turtle_Register(ccType, ccNum, path, _userId);
+        var newTurtle = await repository.Turtle_Register("Unknown", ccNum, path, _userId);
         return newTurtle;
     }
 
@@ -112,5 +106,44 @@ public class TurtleService : Turtle.IBackendService
         {
             throw new ApplicationException(InvalidCheckTag);
         }
+    }
+
+    public async Task<Turtle> Set(int id, int? cohortId, int _userId)
+    {
+        var existing = await repository.Turtle_GetById(id);
+        if (existing is null
+            || (!existing.IsPublic && existing.OwnerId != _userId))
+        {
+            throw new Exception(GrandTheftTurtle);
+        }
+
+        var turtle = await repository.Turtle_Set(id, cohortId);
+        return turtle;
+    }
+
+    public async Task<Turtle> Share(int id, int _userId)
+    {
+        var existing = await repository.Turtle_GetById(id);
+        if (existing is null
+            || existing.OwnerId != _userId)
+        {
+            throw new Exception(GrandTheftTurtle);
+        }
+
+        var turtle = await repository.Turtle_SetIsPublic(id, true);
+        return turtle;
+    }
+
+    public async Task<Turtle> Unshare(int id, int _userId)
+    {
+        var existing = await repository.Turtle_GetById(id);
+        if (existing is null
+            || existing.OwnerId != _userId)
+        {
+            throw new Exception(GrandTheftTurtle);
+        }
+
+        var turtle = await repository.Turtle_SetIsPublic(id, false);
+        return turtle;
     }
 }
