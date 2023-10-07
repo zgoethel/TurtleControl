@@ -1,0 +1,46 @@
+﻿@if (visible)
+{
+    
+    <div class="card py-3 mb-2 d-flex flex-row shadow shadow-dark @state">
+
+        @(Toast.CustomContent
+            ?? (@<span class="mx-3">@Toast.Message</span>))
+
+        @if (Toast.CanCancel)
+        {
+            <i class="oi oi-x ms-auto me-3"
+                style="cursor: pointer;"
+                @onclick="@HideAsync" />
+        }
+
+    </div>
+
+}
+
+@code {
+    [Parameter]
+    public Toast Toast { get; set; }
+
+    private bool visible = true;
+    private string state = "fly-in";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if (Toast.Timeout > 0)
+        {
+            await Task.Delay(Toast.Timeout);
+            await HideAsync();
+        }
+    }
+
+    private async Task HideAsync()
+    {
+        state = "fly-out";
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(550);
+
+        visible = false;
+        await InvokeAsync(StateHasChanged);
+    }
+}

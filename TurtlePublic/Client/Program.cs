@@ -18,6 +18,7 @@ builder.Services.AddSingleton((sp) => new HttpClient
 builder.Services.AddScoped<IModelApiAdapter, ModelApiAdapter>();
 builder.Services.AddScoped((sp) => sp.GetRequiredService<IModelApiAdapter>() as AuthenticationStateProvider);
 builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<ToastService>();
 builder.Services.AddTurtlePublicFrontend();
 
 await builder.Build().RunAsync();

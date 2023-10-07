@@ -1,8 +1,10 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization;
 @attribute [AllowAnonymous]
 @implements IDisposable
 @inject Event.IService events
+@inject ToastService toasts
 
 <PageTitle>Turtle Stats</PageTitle>
 
@@ -221,6 +223,16 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+
+        await toasts.CreateToastAsync(new()
+        {
+            CustomContent = 
+                @<div class="mx-3">
+                    <AuthorizeView>
+                        Welcome, <strong>@context.User.Identity.Name</strong>!
+                    </AuthorizeView>
+                </div>
+        });
 
         while (running)
         {

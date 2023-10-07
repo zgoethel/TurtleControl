@@ -1,0 +1,31 @@
+﻿@using TurtlePublic.Services
+@implements IDisposable
+@inject ToastService toasts
+
+<div style="position: relative;overflow-x: hidden;">
+    @foreach (var toast in allToasts.Reverse<Toast>())
+    {
+        <ToastItem @key="@toast" Toast="@toast" />
+    }
+</div>
+
+@code {
+    private List<Toast> allToasts = new();
+
+    private async Task HandleToastAsync(Toast toast)
+    {
+        allToasts.Add(toast);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        toasts.OnToastCreated += HandleToastAsync;
+    }
+
+    void IDisposable.Dispose()
+    {
+        toasts.OnToastCreated -= HandleToastAsync;
+    }
+}
