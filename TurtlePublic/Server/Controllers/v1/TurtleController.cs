@@ -17,6 +17,10 @@ public class TurtleController : ControllerBase
         this.turtles = turtles;
     }
 
+    /// <summary>
+    /// Retrieves a turtle, verifying access rights. Returns null if the device
+    /// is not found.
+    /// </summary>
     [HttpPost("Get")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -34,6 +38,10 @@ public class TurtleController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Lists all available devices in pages, filterable to items owned by the
+    /// current user account.
+    /// </summary>
     [HttpPost("List")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -51,6 +59,9 @@ public class TurtleController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Registers a new check tag which can be redeemed to pair a CC device.
+    /// </summary>
     [HttpPost("BeginPairing")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -68,6 +79,10 @@ public class TurtleController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Recursively searches the ComputerCraft save files for a file downloaded
+    /// within the game. Pairs any discovered device.
+    /// </summary>
     [HttpPost("CheckPairing")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -85,6 +100,10 @@ public class TurtleController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Updates turtle configuration values, including only details which should
+    /// be accessible on public shares.
+    /// </summary>
     [HttpPost("Set")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -102,6 +121,9 @@ public class TurtleController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Sets a turtle to public; can only be performed by the owner.
+    /// </summary>
     [HttpPost("Share")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -119,6 +141,9 @@ public class TurtleController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Sets a turtle to private; can only be performed by the owner.
+    /// </summary>
     [HttpPost("Unshare")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -136,6 +161,10 @@ public class TurtleController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Retrieves a list of files in the ComputerCraft save data for the
+    /// specific device at the specific sub-path.
+    /// </summary>
     [HttpPost("ListFiles")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
