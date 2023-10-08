@@ -17,6 +17,23 @@ public class TurtleController : ControllerBase
         this.turtles = turtles;
     }
 
+    [HttpPost("Get")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Produces(typeof(List<Turtle.WithDetails>))]
+    public async Task<IActionResult> Get(int id)
+    {
+        try
+        {
+            var _userId = this.LoggedIn();
+            var turtle = await turtles.Get(id, _userId);
+            return Ok(turtle);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
     [HttpPost("List")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -113,6 +130,23 @@ public class TurtleController : ControllerBase
             var _userId = this.LoggedIn();
             var turtle = await turtles.Unshare(id, _userId);
             return Ok(turtle);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
+    [HttpPost("ListFiles")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Produces(typeof(List<string>))]
+    public async Task<IActionResult> ListFiles(int id, string path)
+    {
+        try
+        {
+            var _userId = this.LoggedIn();
+            var files = await turtles.ListFiles(id, path, _userId);
+            return Ok(files);
         } catch (Exception ex)
         {
             return Problem(ex.Message);

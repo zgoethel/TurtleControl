@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @attribute [Authorize]
 @inject Turtle.IService turtles
+@inject ToastService toasts
 
 <PageTitle>Manage Devices</PageTitle>
 
@@ -24,17 +25,17 @@
             <h2 hidden="@IsError">Searching</h2>
             <p hidden="@IsError" class="mt-2"><i class="spinner-border" /></p>
             @if (!string.IsNullOrEmpty(status))
-                {
-                    <p><c>@status</c></p>
-                }
+            {
+                <p><c>@status</c></p>
+            }
 
-                @*TODO*@
-                <button class="btn btn-secondary"
+            @*TODO*@
+            <button class="btn btn-secondary"
                 @onclick="@(() => checkTag = status = "")">
-            Cancel
-        </button>
-    </div>
-</center>
+                Cancel
+            </button>
+        </div>
+    </center>
 
 </div>;
 }
@@ -228,9 +229,23 @@
             await Task.Delay(2000);
             try
             {
-                await turtles.CheckPairing(checkTag, 0);
+                var turtle = await turtles.CheckPairing(checkTag, 0);
                 checkTag = status = "";
                 await ReloadTurtlesAsync();
+
+                if (turtle.CCType.ToLower() == "unknown")
+                {
+                    await toasts.CreateToastAsync(new()
+                    {
+                        Message = $"Device {turtle.CCNum} paired; post an event to populate metadata"
+                    });
+                } else
+                {
+                    await toasts.CreateToastAsync(new()
+                    {
+                        Message = $"{turtle.CCType} {turtle.CCNum} paired to your account"
+                    });
+                }
             } catch (Exception ex)
             {
                 status = ex.Message;
@@ -241,13 +256,23 @@
 
     private async Task ShareAsync(int id)
     {
-        await turtles.Share(id, 0);
+        var turtle = await turtles.Share(id, 0);
         await ReloadTurtlesAsync(clear: false);
+
+        await toasts.CreateToastAsync(new()
+        {
+            Message = $"{turtle.CCType} {turtle.CCNum} is now shared"
+        });
     }
 
     private async Task UnshareAsync(int id)
     {
-        await turtles.Unshare(id, 0);
+        var turtle = await turtles.Unshare(id, 0);
         await ReloadTurtlesAsync(clear: false);
+
+        await toasts.CreateToastAsync(new()
+        {
+            Message = $"{turtle.CCType} {turtle.CCNum} is now private to you"
+        });
     }
 }

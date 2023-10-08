@@ -19,12 +19,24 @@ public class TurtleService : Turtle.IBackendService
 
     private const string InvalidCheckTag = "Are you sure you're a turtle?";
     private const string GrandTheftTurtle = "These are not the droids you're looking for";
+    private const string DeviceNotFound = "Failed to find that device";
 
     private static IDictionary<string, int> turtleOwners = new ConcurrentDictionary<string, int>();
 
     public async Task<Turtle.WithDetails> Get(int id)
     {
         return await repository.Turtle_GetById(id);
+    }
+
+    public async Task<Turtle.WithDetails> Get(int id, int _userId)
+    {
+        var turtle = await repository.Turtle_GetById(id);
+        if (turtle is not null
+            && !turtle.IsPublic && turtle.OwnerId != _userId)
+        {
+            throw new ApplicationException(GrandTheftTurtle);
+        }
+        return turtle;
     }
 
     public async Task<List<Turtle.WithOwner>> List(int page, int count, bool allUsers, int _userId)
@@ -60,7 +72,7 @@ public class TurtleService : Turtle.IBackendService
         var lastSlash = checkTag.LastIndexOf("/");
         if (lastSlash == -1)
         {
-            throw new ApplicationException("Invalid check tag format");
+            throw new ApplicationException(InvalidCheckTag);
         }
         var searchFor = checkTag.Substring(lastSlash + 1);
 
@@ -110,40 +122,48 @@ public class TurtleService : Turtle.IBackendService
 
     public async Task<Turtle> Set(int id, int? cohortId, int _userId)
     {
-        var existing = await repository.Turtle_GetById(id);
-        if (existing is null
-            || (!existing.IsPublic && existing.OwnerId != _userId))
+        var existing = await Get(id, _userId);
+        if (existing is null)
         {
-            throw new Exception(GrandTheftTurtle);
+            throw new ApplicationException(DeviceNotFound);
         }
-
         var turtle = await repository.Turtle_Set(id, cohortId);
         return turtle;
     }
 
     public async Task<Turtle> Share(int id, int _userId)
     {
-        var existing = await repository.Turtle_GetById(id);
-        if (existing is null
-            || existing.OwnerId != _userId)
+        var existing = await Get(id, _userId);
+        if (existing is null)
         {
-            throw new Exception(GrandTheftTurtle);
+            throw new ApplicationException(DeviceNotFound);
         }
-
         var turtle = await repository.Turtle_SetIsPublic(id, true);
         return turtle;
     }
 
     public async Task<Turtle> Unshare(int id, int _userId)
     {
-        var existing = await repository.Turtle_GetById(id);
-        if (existing is null
-            || existing.OwnerId != _userId)
+        var existing = await Get(id, _userId);
+        if (existing is null)
         {
-            throw new Exception(GrandTheftTurtle);
+            throw new ApplicationException(DeviceNotFound);
         }
-
         var turtle = await repository.Turtle_SetIsPublic(id, false);
         return turtle;
+    }
+
+    public async Task<List<string>> ListFiles(int id, string path, int _userId)
+    {
+        var turtle = await Get(id, _userId);
+        if (turtle is null)
+        {
+            throw new ApplicationException(DeviceNotFound);
+        }
+        var fullPath = linkGenerator.GenerateCcPath("computer",
+            turtle.CCNum.ToString(),
+            path);
+        var listing = sshClient.ListFiles(fullPath);
+        return listing.ToList();
     }
 }

@@ -1,6 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager navMan
-@inject ToastService toasts
 
 <div class="d-flex flex-column flex-md-row p-2" style="width: 100%;">
     
@@ -14,8 +13,6 @@
         <NotAuthorized>
         </NotAuthorized>
     </AuthorizeView>
-
-    <button type="button" @onclick="@ToastAsync">Toast</button>
 
     <AuthorizeView>
         <Authorized>
@@ -46,56 +43,5 @@
         // Due to laziness, login/out are shared and need to be fully refreshed
         // (only if going straight from login page to logout)
         navMan.NavigateTo("logout", navMan.Uri.EndsWith("login"));
-    }
-
-    private async Task ToastAsync()
-    {
-        try
-        {
-            using var http = new HttpClient();
-            using var req = await http.PostAsync("https://randommer.io/Name",
-                new FormUrlEncodedContent(new Dictionary<string, string>()
-                {
-                    ["type"] = "fullname",
-                    ["number"] = "10"
-                }));
-            var names = await req.Content.ReadFromJsonAsync<List<string>>();
-
-            await toasts.CreateToastAsync(new()
-            {
-                CustomContent =
-                    @<div class="p-2" style="width: 100%;">
-                        <img style="display: block;float: left;margin: 15px;border-radius: 30px;"
-                            class="shadow shadow-dark"
-                            width="60"
-                            src="https://i.imgur.com/u4bamL7.png" />
-                        <h6>Grades assigned:</h6>
-                        <ol style="list-style-position: inside;width: 100%;" class="mb-0">
-                            @foreach (var n in names)
-                            {
-                                <li class="cursive">@n - @(Random.Shared.NextInt64(5)
-                                switch
-                                {
-                                    0 => "A",
-                                    1 => "B",
-                                    2 => "C",
-                                    3 => "D",
-                                    _ => "F",
-                                })</li>
-                            }
-                        </ol>
-                    </div>
-            });
-        } catch (Exception ex)
-        {
-            await toasts.CreateToastAsync(new()
-            {
-                CustomContent =
-                    (@<div class='mx-3' style='font-family: monospace;'>
-                        <h6 class="mb-2">@ex.Message</h6>
-                        <pre style="font-family: monospace !important;">@ex.StackTrace.ToString()</pre>
-                    </div>)
-            });
-        }
     }
 }

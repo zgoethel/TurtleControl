@@ -44,6 +44,10 @@ public class LinkPathGenerator : ILinkPathGenerator
 
         foreach (var p in pieces)
         {
+            if (string.IsNullOrEmpty(p?.Trim('/')))
+            {
+                continue;
+            }
             path.Append('/');
             path.Append(p.Trim('/'));
         }

@@ -23,6 +23,13 @@ partial WithDetails {
 	{
 		public string Link { get; set; } = "";
 	}
+
+	//TODO Add to SSH service
+	public class File
+	{
+		public string Path { get; set; } = "";
+		public bool IsDir { get; set; }
+	}
 }
 
 repo {
@@ -45,6 +52,9 @@ repo {
 service {
 	Get(int id)
 		=> Turtle.WithDetails,
+		
+	Get(int id, int _userId)
+		=> Turtle.WithDetails,
 
 	List(int page, int count, bool allUsers, int _userId)
 		=> List<Turtle.WithOwner>,
@@ -65,5 +75,8 @@ service {
 		=> Turtle,
 
 	Unshare(int id, int _userId)
-		=> Turtle
+		=> Turtle,
+
+	ListFiles(int id, string path, int _userId)
+		=> List<string>
 }

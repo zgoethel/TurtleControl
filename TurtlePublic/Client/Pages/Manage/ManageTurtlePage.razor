@@ -1,0 +1,65 @@
+﻿@page "/turtle/{_Id}"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize]
+@inject Turtle.IService turtles
+@inject ToastService toasts
+
+<PageTitle>Manage @turtle.CCType @turtle.CCNum</PageTitle>
+
+@switch (turtle.Id)
+{
+    case 0:
+        <center>
+            <i class="spinner-border" />
+        </center>
+        break;
+    case -1:
+        <div class="alert alert-danger">
+            @error
+        </div>
+        break;
+    default:
+
+        <div class="p-3">
+
+            <div class="d-flex flex-row" style="width: 100%;">
+                <div class="d-flex flex-row">
+                    <h2 class="cursive">@turtle.CCType @turtle.CCNum</h2>
+                </div>
+            </div>
+
+        </div>
+
+        break;
+}
+
+@code {
+    [Parameter]
+    public string _Id { get; set; }
+    private int Id => int.TryParse(_Id, out var id) ? id : -1;
+
+    private Turtle turtle = new();
+    private string dirPath = "";
+    private List<string> dirListing = new();
+    private string error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        try
+        {
+            if (Id > 0)
+            {
+                turtle = await turtles.Get(Id);
+            } else
+            {
+                throw new Exception("Not found");
+            }
+        } catch (Exception ex)
+        {
+            turtle.Id = -1;
+            error = ex.Message;
+        }
+    }
+}
