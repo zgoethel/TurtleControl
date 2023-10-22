@@ -7,4 +7,18 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="IsPublic" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="c17c91e1-c968-4c51-95a4-59cd6887af2c" ChangeDateTime="10/21/2023 00:34:04">
+    <Property Name="ElementName" Value="[dbo].[PackageSource].[Version]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[PackageSource]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="IsDirty" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="e23f8b69-91f2-4f27-801f-fc5c798c6058" ChangeDateTime="10/21/2023 00:37:52">
+    <Property Name="ElementName" Value="[dbo].[FK_PackageSource_Package]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[PackageSource]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_PackageSource_PackageId]" />
+  </Operation>
 </Operations>

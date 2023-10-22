@@ -163,18 +163,38 @@ public class TurtleController : ControllerBase
 
     /// <summary>
     /// Retrieves a list of files in the ComputerCraft save data for the
-    /// specific device at the specific sub-path.
+    /// specific device at the specific sub-path. Insecure.
     /// </summary>
     [HttpPost("ListFiles")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [Produces(typeof(List<string>))]
+    [Produces(typeof(List<Turtle.SshFile>))]
     public async Task<IActionResult> ListFiles(int id, string path)
     {
         try
         {
             var _userId = this.LoggedIn();
             var files = await turtles.ListFiles(id, path, _userId);
+            return Ok(files);
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Retrieves the contents of a specific file as Base64. Insecure.
+    /// </summary>
+    [HttpPost("DownloadFile")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Produces(typeof(Turtle.FileDownload))]
+    public async Task<IActionResult> DownloadFile(int id, string path, string file)
+    {
+        try
+        {
+            var _userId = this.LoggedIn();
+            var files = await turtles.DownloadFile(id, path, file, _userId);
             return Ok(files);
         } catch (Exception ex)
         {

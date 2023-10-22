@@ -24,8 +24,12 @@ partial WithDetails {
 		public string Link { get; set; } = "";
 	}
 
-	//TODO Add to SSH service
-	public class File
+	public class FileDownload
+	{
+		public string Base64Bytes { get; set; } = "";
+	}
+
+	public class SshFile
 	{
 		public string Path { get; set; } = "";
 		public bool IsDir { get; set; }
@@ -78,5 +82,8 @@ service {
 		=> Turtle,
 
 	ListFiles(int id, string path, int _userId)
-		=> List<string>
+		=> List<Turtle.SshFile>,
+
+	DownloadFile(int id, string path, string file, int _userId)
+		=> Turtle.FileDownload
 }

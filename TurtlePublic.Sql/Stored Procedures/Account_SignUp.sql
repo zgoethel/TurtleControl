@@ -4,6 +4,9 @@
     @lastName NVARCHAR(50)
 AS
 
+    RAISERROR('Registration is currently invite-only', 18, 1)
+    RETURN 0
+    /*
     -- Validation error message; there is also a proper uniqueness
     -- constraint on the table column for integrity
     IF EXISTS (
@@ -26,5 +29,6 @@ AS
         SELECT SCOPE_IDENTITY());
 
     EXEC Account_GetById @id;
+    */
 
 RETURN 0

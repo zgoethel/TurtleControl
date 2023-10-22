@@ -1,0 +1,8 @@
+﻿CREATE TABLE [dbo].[Package]
+(
+    [Id] INT NOT NULL PRIMARY KEY IDENTITY, 
+    [Name] NVARCHAR(250) NOT NULL, 
+    [OwnerId] INT NOT NULL, 
+    [Created] DATETIME NOT NULL DEFAULT GETDATE(), 
+    [IsPublic] BIT NOT NULL DEFAULT 0
+)

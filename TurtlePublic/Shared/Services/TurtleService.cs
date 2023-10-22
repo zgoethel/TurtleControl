@@ -127,43 +127,72 @@ public class TurtleService : Turtle.IBackendService
         {
             throw new ApplicationException(DeviceNotFound);
         }
+
         var turtle = await repository.Turtle_Set(id, cohortId);
         return turtle;
     }
 
     public async Task<Turtle> Share(int id, int _userId)
     {
-        var existing = await Get(id, _userId);
-        if (existing is null)
+        var existing = await repository.Turtle_GetById(id);
+        if (existing is null || existing.OwnerId != _userId)
         {
             throw new ApplicationException(DeviceNotFound);
         }
+
         var turtle = await repository.Turtle_SetIsPublic(id, true);
         return turtle;
     }
 
     public async Task<Turtle> Unshare(int id, int _userId)
     {
-        var existing = await Get(id, _userId);
-        if (existing is null)
+        var existing = await repository.Turtle_GetById(id);
+        if (existing is null || existing.OwnerId != _userId)
         {
-            throw new ApplicationException(DeviceNotFound);
+            throw new ApplicationException(GrandTheftTurtle);
         }
+
         var turtle = await repository.Turtle_SetIsPublic(id, false);
         return turtle;
     }
 
-    public async Task<List<string>> ListFiles(int id, string path, int _userId)
+    /// <summary>
+    /// This is not secure, but is behind authenticated endpoints.
+    /// </summary>
+    public async Task<List<Turtle.SshFile>> ListFiles(int id, string path, int _userId)
     {
         var turtle = await Get(id, _userId);
         if (turtle is null)
         {
             throw new ApplicationException(DeviceNotFound);
         }
+
         var fullPath = linkGenerator.GenerateCcPath("computer",
             turtle.CCNum.ToString(),
             path);
         var listing = sshClient.ListFiles(fullPath);
-        return listing.ToList();
+        return listing;
+    }
+
+    /// <summary>
+    /// This is not secure, but is behind authenticated endpoints.
+    /// </summary>
+    public async Task<Turtle.FileDownload> DownloadFile(int id, string path, string file, int _userId)
+    {
+        var turtle = await Get(id, _userId);
+        if (turtle is null)
+        {
+            throw new ApplicationException(DeviceNotFound);
+        }
+
+        var fullPath = linkGenerator.GenerateCcPath("computer",
+            turtle.CCNum.ToString(),
+            path,
+            file);
+        var base64 = sshClient.DownloadFileBase64(fullPath);
+        return new()
+        {
+            Base64Bytes = base64
+        };
     }
 }
