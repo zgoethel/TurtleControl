@@ -1,4 +1,5 @@
 ﻿using Generated;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 
 namespace TurtlePublic.Services;
@@ -9,12 +10,19 @@ public class TurtleService : Turtle.IBackendService
     private readonly Account.IService accounts;
     private readonly ISshClientService sshClient;
     private readonly ILinkPathGenerator linkGenerator;
-    public TurtleService(Turtle.Repository repository, Account.IService accounts, ISshClientService sshClient, ILinkPathGenerator linkGenerator)
+    private readonly IServiceProvider sp;
+
+    private Package.IService _packages;
+    private Package.IService packages =>
+        (_packages ??= sp.GetRequiredService<Package.IService>());
+
+    public TurtleService(Turtle.Repository repository, Account.IService accounts, ISshClientService sshClient, ILinkPathGenerator linkGenerator, IServiceProvider sp)
     {
         this.repository = repository;
         this.accounts = accounts;
         this.sshClient = sshClient;
         this.linkGenerator = linkGenerator;
+        this.sp = sp;
     }
 
     private const string InvalidCheckTag = "Are you sure you're a turtle?";
@@ -203,7 +211,9 @@ public class TurtleService : Turtle.IBackendService
         {
             throw new ApplicationException(DeviceNotFound);
         }
-        //TODO Package security
+
+        // Security check
+        _ = await packages.Get(packageId, _userId);
 
         await repository.Turtle_InstallPackage(id, packageId);
     }

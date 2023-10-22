@@ -39,10 +39,16 @@ repo {
 		=> Package.SourceVersion,
 
 	Package_Commit(int? id, string path, string description, int _userId, string source)
-		=> Package.SourceVersion
+		=> Package.SourceVersion,
+
+	Package_SetIsPublic(int id, bool isPublic)
+		=> Package
 }
 
 service {
+	Get(int id)
+		=> Package,
+
 	Get(int id, int _userId)
 		=> Package,
 
@@ -52,5 +58,12 @@ service {
 	AddSource(int id, string path, string source, int turtleId, int _userId)
 		=> Package.SourceVersion,
 
-	Commit(int? id, string path, string source, string description, int _userId)
+	Commit(int id, string path, string source, string description, int _userId)
+		=> Package.SourceVersion,
+
+	Share(int id, int _userId)
+		=> Package,
+
+	Unshare(int id, int _userId)
+		=> Package
 }

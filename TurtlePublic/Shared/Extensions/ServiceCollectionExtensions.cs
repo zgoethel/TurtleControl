@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
         services.AddEventBackend<EventService>();
         services.AddAccountBackend<AccountService>();
         services.AddTurtleBackend<TurtleService>();
+        services.AddPackageBackend<PackageService>();
     }
 
     public static void AddTurtlePublicFrontend(this IServiceCollection services)
@@ -18,5 +19,6 @@ public static class ServiceCollectionExtensions
         services.AddEventFrontend();
         services.AddAccountFrontend();
         services.AddTurtleFrontend();
+        services.AddPackageFrontend();
     }
 }
