@@ -50,7 +50,9 @@ repo {
 		=> Turtle,
 
 	Turtle_SetIsPublic(int id, bool isPublic)
-		=> Turtle
+		=> Turtle,
+
+	Turtle_InstallPackage(int turtleId, int packageId)
 }
 
 service {

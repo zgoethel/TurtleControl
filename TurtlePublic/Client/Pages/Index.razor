@@ -5,6 +5,7 @@
 @implements IDisposable
 @inject Event.IService events
 @inject ToastService toasts
+@inject AuthenticationStateProvider authState
 
 <PageTitle>Turtle Stats</PageTitle>
 
@@ -224,15 +225,17 @@
     {
         await base.OnInitializedAsync();
 
-        await toasts.CreateToastAsync(new()
+        var _auth = await authState.GetAuthenticationStateAsync();
+        if (_auth.User.Identity?.IsAuthenticated == true)
         {
-            CustomContent = 
-                @<div class="mx-3">
-                    <AuthorizeView>
-                        Welcome, <strong>@context.User.Identity.Name</strong>!
-                    </AuthorizeView>
-                </div>
-        });
+            await toasts.CreateToastAsync(new()
+            {
+                CustomContent = 
+                    @<div class="mx-3">
+                        Welcome, <strong>@_auth.User.Identity.Name</strong>!
+                    </div>
+            });
+        }
 
         while (running)
         {

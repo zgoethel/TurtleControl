@@ -1,0 +1,46 @@
+﻿schema {
+	int Id,
+	string Name = {""},
+	int OwnerId,
+	DateTime Created,
+	bool IsPublic
+}
+
+{
+	public class Source
+	{
+		public int Id { get; set; }
+		public int PackageId { get; set; }
+		public string Path { get; set; } = "";
+		public bool IsDirty { get; set; }
+		public int? VersionId { get; set; }
+		public DateTime Added { get; set; }
+	}
+
+	public class SourceVersion
+	{
+		public int Id { get; set; }
+		public string Path { get; set; }
+		public bool Committed { get; set; }
+		public string Description { get; set; }
+		public int CommittedBy { get; set; }
+		public string Source { get; set; }
+	}
+}
+
+repo {
+	Package_GetById(int id)
+		=> Package,
+
+	Package_Set(int id, string name, int ownerId)
+		=> Package,
+
+	Package_AddSource(int id, int path, string source, int turtleId, int _userId)
+		=> Package.SourceVersion,
+
+	Package_Commit(int? id, string path, string description, int _userId, string source)
+		=> Package.SourceVersion
+}
+
+service {
+}

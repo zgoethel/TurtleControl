@@ -6,6 +6,12 @@
     @source NVARCHAR(MAX)
 AS
 
+    -- Mark package as having pending update, if
+    -- source is associated with package
+    UPDATE PackageSource
+    SET IsDirty = 1
+    WHERE PackageId = @id;
+
     INSERT INTO SourceVersion (
         Path,
         Description,
@@ -17,10 +23,7 @@ AS
         @_userId,
         @source);
 
-    -- Mark package as having pending update, if
-    -- source is associated with package
-    UPDATE PackageSource
-    SET IsDirty = 1
-    WHERE PackageId = @id
+    DECLARE @_id INT = SCOPE_IDENTITY();
+    EXEC Package_GetSourceVersionById @id = @_id;
 
 RETURN 0
