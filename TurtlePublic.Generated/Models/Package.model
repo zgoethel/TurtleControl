@@ -35,7 +35,7 @@ repo {
 	Package_Set(int id, string name, int ownerId)
 		=> Package,
 
-	Package_AddSource(int id, int path, string source, int turtleId, int _userId)
+	Package_AddSource(int id, string path, string source, int turtleId, int _userId)
 		=> Package.SourceVersion,
 
 	Package_Commit(int? id, string path, string description, int _userId, string source)
@@ -43,4 +43,14 @@ repo {
 }
 
 service {
+	Get(int id, int _userId)
+		=> Package,
+
+	Set(int id, string name, int _userId)
+		=> Package,
+
+	AddSource(int id, string path, string source, int turtleId, int _userId)
+		=> Package.SourceVersion,
+
+	Commit(int? id, string path, string source, string description, int _userId)
 }

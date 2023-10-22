@@ -87,5 +87,7 @@ service {
 		=> List<Turtle.SshFile>,
 
 	DownloadFile(int id, string path, string file, int _userId)
-		=> Turtle.FileDownload
+		=> Turtle.FileDownload,
+
+	InstallPackage(int id, int packageId, int _userId)
 }

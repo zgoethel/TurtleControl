@@ -195,4 +195,16 @@ public class TurtleService : Turtle.IBackendService
             Base64Bytes = base64
         };
     }
+
+    public async Task InstallPackage(int id, int packageId, int _userId)
+    {
+        var turtle = await Get(id, _userId);
+        if (turtle is null)
+        {
+            throw new ApplicationException(DeviceNotFound);
+        }
+        //TODO Package security
+
+        await repository.Turtle_InstallPackage(id, packageId);
+    }
 }

@@ -201,4 +201,23 @@ public class TurtleController : ControllerBase
             return Problem(ex.Message);
         }
     }
+
+    /// <summary>
+    /// Marks a particular package for installation on a turtle. Does not copy files.
+    /// </summary>
+    [HttpPost("InstallPackage")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> InstallPackage(int id, int packageId)
+    {
+        try
+        {
+            var _userId = this.LoggedIn();
+            await turtles.InstallPackage(id, packageId, _userId);
+            return Ok();
+        } catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
 }
