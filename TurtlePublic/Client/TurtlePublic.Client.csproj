@@ -17,4 +17,12 @@
     <ProjectReference Include="..\Shared\TurtlePublic.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\Manage\ManageTurtle_SourceBrowser.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Manage\ManageTurtle_SourceBrowser.razor" />
+  </ItemGroup>
+
 </Project>

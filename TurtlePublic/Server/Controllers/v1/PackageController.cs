@@ -17,10 +17,13 @@ public class PackageController : ControllerBase
         this.packages = packages;
     }
 
+    /// <summary>
+    /// Retrieves details for a particular record.
+    /// </summary>
     [HttpPost("Get")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [Produces(typeof(List<Package>))]
+    [Produces(typeof(Package))]
     public async Task<IActionResult> Get(int id)
     {
         try
@@ -34,6 +37,9 @@ public class PackageController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Updates details for a particular record, or else creating a new one.
+    /// </summary>
     [HttpPost("Set")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -91,6 +97,10 @@ public class PackageController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Links a Turtle file path to a package to be managed. Source must be
+    /// further published to peer Turtles.
+    /// </summary>
     [HttpPost("AddSource")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -108,6 +118,10 @@ public class PackageController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Updates the latest source for the managed file, marking related packages
+    /// as dirty (requiring re-publishing).
+    /// </summary>
     [HttpPost("Commit")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]

@@ -1,0 +1,28 @@
+﻿<div class="modal-container">
+    <div class="m-auto bg-white px-2" style="height: fit-content;">
+
+        <div class="d-flex flex-row">
+
+            <strong class="d-block ms-2 mt-2" style="margin-top: 14px !important;">@Title</strong>
+
+            <i class="oi oi-x d-block ms-auto p-3"
+                style="cursor: pointer;"
+                @onclick="@OnClose" />
+
+        </div>
+
+        <pre>@Source</pre>
+
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter]
+    public string Source { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+}

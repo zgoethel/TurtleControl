@@ -212,8 +212,10 @@ public class TurtleService : Turtle.IBackendService
             throw new ApplicationException(DeviceNotFound);
         }
 
+        /*
         // Security check
         _ = await packages.Get(packageId, _userId);
+        */
 
         await repository.Turtle_InstallPackage(id, packageId);
     }

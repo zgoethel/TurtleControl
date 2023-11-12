@@ -1,0 +1,142 @@
+﻿@inject Turtle.IService turtles
+@inject ToastService toasts
+
+<table class="table table-dark table-striped" style="max-width: 100%;overflow-x: scroll;">
+    <colgroup>
+        <col style="width: 80px;" />
+        <col />
+        <col style="width: 260px;" />
+        <col style="width: 200px;" />
+    </colgroup>
+    <thead>
+        <tr>
+            <th>
+                <i class="oi oi-reload" style="cursor: pointer;"
+                    @onclick=@(async () =>
+                    {
+                        dirListing.Clear();
+                        await LoadPath(dirPath);
+                    }) />
+            </th>
+            <th>Name</th>
+            <th>Package</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @if (dirPaths.Count > 0)
+        {
+            <tr>
+                <td>
+                </td>
+                <td>
+                    <a href="javascript:void(0);"
+                        style="font-size: 1.1rem;color: white !important;"
+                        @onclick=@(async () =>
+                        {
+                            var prevPath = dirPaths.Peek();
+                            await LoadPath(prevPath);
+                            dirPaths.Pop();
+                        })>..</a>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+            </tr>
+        }
+
+        @foreach (var file in dirListing.OrderBy((it) => it.IsDir ? 0 : 1))
+        {
+            <tr>
+                <td>
+
+                    <h5><i class="oi oi-@(file.IsDir ? "folder": "file") me-2" /></h5>
+                            
+                </td>
+                <td>
+
+                    <a href="javascript:void(0);" class="text-white"
+                        @onclick="@(async () => await HandleFileClickAsync(file))">
+                        @file.Path
+                    </a>
+
+                </td>
+                <td>
+                    <select class="form-select">
+                        <option>Please select</option>
+                    </select>
+                </td>
+                <td>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+@if (openSource is not null)
+{
+    <ManageTurtle_SourcePreview Source="@openSource"
+        Title="@openTitle"
+        OnClose="@(() => openSource = null)" />
+}
+
+@code {
+    [Parameter]
+    public Turtle Turtle { get; set; }
+
+    private string dirPath = "";
+    private List<Turtle.SshFile> dirListing = new();
+    private Stack<string> dirPaths = new();
+    private string openTitle, openSource;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await LoadPath("");
+    }
+
+    private async Task LoadPath(string path)
+    {
+        try
+        {
+            dirPath = path;
+            dirListing = await turtles.ListFiles(Turtle.Id, dirPath, 0);
+        } catch (Exception ex)
+        {
+            dirListing = new();
+            await toasts.CreateToastAsync(new()
+            {
+                Message = ex.Message
+            });
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleFileClickAsync(Turtle.SshFile file)
+    {
+        if (file.IsDir)
+        {
+            var _dirPath = dirPath;
+            var newPath = dirPath.TrimEnd('/') + "/" + file.Path;
+            await LoadPath(newPath);
+
+            dirPaths.Push(_dirPath);
+            await InvokeAsync(StateHasChanged);
+        } else
+        {
+            var base64 = await turtles.DownloadFile(Turtle.Id, dirPath, file.Path, 0);
+            var bytes = Convert.FromBase64String(base64.Base64Bytes);
+            try
+            {
+                openTitle = file.Path;
+                openSource = System.Text.Encoding.UTF8.GetString(bytes);
+            } catch (Exception)
+            {
+                openSource = "Non UTF-8";
+            }
+        }
+    }
+}

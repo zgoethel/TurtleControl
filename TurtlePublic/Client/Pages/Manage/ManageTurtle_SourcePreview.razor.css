@@ -1,0 +1,20 @@
+﻿.modal-container {
+    display: flex;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 100vw;
+    background: #000000c0;
+    color: black;
+}
+
+.modal-container pre {
+    color: black !important;
+    max-height: calc(100vh - 10rem);
+    width: 650px;
+    max-width: 90vw;
+    overflow-y: scroll;
+    overflow-x: auto;
+}
