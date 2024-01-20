@@ -29,14 +29,14 @@ builder.Services.AddRazorPages();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddApiVersioning((config) =>
-{
-    config.ReportApiVersions = true;
-});
-builder.Services.AddVersionedApiExplorer((config) =>
-{
-    config.GroupNameFormat = "'v'VVV";
-    config.SubstituteApiVersionInUrl = true;
-});
+    {
+        config.ReportApiVersions = true;
+    })
+    .AddApiExplorer(options =>
+    {
+        options.GroupNameFormat = "'v'VVV";
+        options.SubstituteApiVersionInUrl = true;
+    });
 
 builder.Services.AddSwaggerGen((config) =>
 {
